@@ -4,7 +4,8 @@ import parser as P
 
 
 def main():
-    lexer = L.Lexer("4\n* 5")
+    lexer = L.Lexer("((1-2)+((3+4)))")
+    # lexer = L.Lexer("4 + (5 - 2) ")
     tokens = lexer.tokenize()
     parser = P.Parser(tokens)
     parser.parse()

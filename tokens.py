@@ -2,20 +2,24 @@ from enum import Enum
 
 
 class Operator(Enum):
-    plus = '+'
-    sub = '-'
-    mult = '*'
-    div = '/'
-    func_one = '='
-    func_multi = '=>'
-    arg_list = '->'
-    type_sep = '|'
+    Add = '+'
+    Subtract = '-'
+    Multiply = '*'
+    Divide = '/'
+    FunctionOneLine = '='
+    FunctionMultiLine = '=>'
+    ArgumentList = '->'
+    TypeSeparator = '|'
 
 
+# The ones in the list in the lexer need to be first:
+# (OpenBracket, CloseBracket, Delimiter)
 class Special(Enum):
-    EOF = 0
-    Whitespace = 1
-    NewLine = 2
+    OpenBracket = 0
+    CloseBracket = 1
+    Delimiter = 2
+    EOF = 3
+    NewLine = 4
 
 
 class Type(Enum):

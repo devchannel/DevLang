@@ -18,7 +18,7 @@ class Parser():
             self.raise_error(token)
 
     # Token must match at least one of the types
-    def eatAnyOf(self, type_tokens):
+    def eat_any(self, type_tokens):
         token = self.peek()
         containsType = False
         for type_token in type_tokens:
@@ -46,7 +46,7 @@ class Parser():
 
     # Peek a specific number of Tokens
     # Put them back in the order that they came from
-    def peekMany(self, n):
+    def peek_many(self, n):
         tokens1 = []
         for x in range(0, n):
             token = self.next()
@@ -61,7 +61,7 @@ class Parser():
 
         self.eat(Special.NewLine)
         op = self.peek()
-        self.eatAnyOf([Operator.plus, Operator.sub,
+        self.eat_any([Operator.plus, Operator.sub,
                        Operator.mult, Operator.div])
 
         self.eat(Special.Whitespace)  # Whitespaces can also be parsed

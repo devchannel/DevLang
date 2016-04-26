@@ -1,5 +1,5 @@
 import lexer as L
-import parser as P
+import parser_ as P
 
 
 

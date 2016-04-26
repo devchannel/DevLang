@@ -1,4 +1,4 @@
-import posUtils as Loc
+import locUtils as Loc
 from tokens import *
 
 

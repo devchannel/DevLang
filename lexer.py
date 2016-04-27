@@ -25,6 +25,14 @@ class Lexer():
         if self.pos >= len(program):
             return Token(Special.EOF, None, self.loc)
 
+        # if it's a space then skip the character
+        while self.pos < len(program) and program[self.pos] == ' ':
+            self.pos += 1
+            self.loc = Loc.nextColumn(self.loc)
+
+        if self.pos >= len(program):
+            return Token(Special.EOF, None, self.loc)
+
         cur_char = program[self.pos]
 
         if cur_char.isdigit():
@@ -37,13 +45,14 @@ class Lexer():
             # This is a string
             return self.lex_str()
 
-        # cannot use isspace(), because we need to detect
-        # newlines separately
-        if cur_char == " ":
+        # We should probably declare this list somewhere better
+        # Separate enum for these chars?????
+        # Do we really need to return a token for spaces?
+        if cur_char in ['(', ')', ';']:
             self.pos += 1
             loc = self.loc
             self.loc = Loc.nextColumn(self.loc)
-            return Token(Special.Whitespace, " ", loc)
+            return Token(Special(['(', ')', ';'].index(cur_char)), cur_char, loc)
 
         if cur_char == "\n":
             self.pos += 1

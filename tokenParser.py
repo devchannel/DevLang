@@ -1,26 +1,6 @@
 from tokens import *
+from grammar import *
 
-
-class ExpressionTypes(Enum):
-    Integer = 0
-    Addition = 1
-    Subtraction = 2
-    Brackets = 3
-    Root = 4
-
-
-class Expression():
-    def __init__(self, int=None):
-        self.children = []
-        if type(int) == type(1):
-            self.type = ExpressionTypes.Integer
-            self.children = [int]
-
-    def __repr__(self):
-        return str(self.type)+": "+str(self.children)
-
-    def __str__(self):
-        return str(self.type)+": "+str(self.children)
 
 class Parser():
     def __init__(self, tokens):
@@ -28,7 +8,9 @@ class Parser():
         self.tokens = tokens
 
     def raise_error(self, token):
-        raise Exception("Ohnoes, an error occurred at position {}.\nType: {}\nValue: {}".format(token.loc, token.type, token.value))
+        raise Exception(
+            "Parser error at {}.\nType: {}\nValue: {}"
+            .format(token.loc, token.type, token.value))
 
     # See if the next token has the correct type
     def eat(self, type_token):
@@ -36,6 +18,7 @@ class Parser():
         if token.type == type_token:
             return self.next()
         else:
+            print(token)
             self.raise_error(token)
 
     # Token must match at least one of the types
@@ -62,56 +45,42 @@ class Parser():
     def peek_many(self, n):
         return list(reversed(self.tokens[-n:]))
 
-    # returns an Expression (aka a tree)
-    # NEEDS IMPROVEMENT
-    # Does not handle invalid input properly
-    # Can't add 3 things for example 1+2+3
-    def parseExpression(self):
-        node = Expression();
-        node.type = ExpressionTypes.Root
+    # TODO: Operator precedence
+    #       Parser combinators
+    def parse_AExpr(self):
 
-        x = self.eat_any([Special.OpenBracket, Type.Integer])
-        if x.type == Special.OpenBracket:
-            node.children.append(self.parseExpression())
-            x = self.eat_any([Operator.Add, Operator.Subtract, Special.EOF, Special.Delimiter, Special.CloseBracket])
-            if x.type in [Special.EOF, Special.Delimiter]:
-                return node.children[0]
-            elif x.type == Special.CloseBracket:
-                if self.peek().type in [Operator.Add, Operator.Subtract]:
-                    x = self.next()
-                else:
-                    return node.children[0]
-            if x.type == Operator.Add:
-                node.type = ExpressionTypes.Addition
-                node.children.append(self.parseExpression())
+        left = None
+        tk = self.peek()
+        if tk.type == Special.OpenBracket: # If we encounter an open bracket
+            self.next()
+            expr = self.parse_AExpr()       # The brackets enclose an expression
+            self.eat(Special.CloseBracket) # It should end with a closing bracket
+            left = ABrackets(expr)
+        elif tk.type == Type.Integer: 
+            left = self.next()
+            tk = self.peek()
+            if self.is_operator(tk.type):  # Integer can be part of another expression
+                self.next()
+                op = tk.type
+                right = self.parse_AExpr() # For now we don't care what is on the rhs
+                left = ABinaryOp(op, AConstant(left.value), right)
             else:
-                node.type = ExpressionTypes.Subtraction
-                node.children.append(self.parseExpression())
-            return node
-        else: # x is an Integer
-            if self.peek().type in [Special.EOF, Special.Delimiter, Special.CloseBracket]:
-                return Expression(int(x.value))
-            node.children.append(Expression(int(x.value)))
-            x = self.eat_any([Operator.Add, Operator.Subtract])
-            if x.type == Operator.Add:
-                node.type = ExpressionTypes.Addition
-                if self.peek().type == Type.Integer:
-                    x = self.next()
-                    node.children.append(Expression(int(x.value)))
-                else:
-                    node.children.append(self.parseExpression())
-                return node
-            else:
-                node.type = ExpressionTypes.Subtraction
-                if self.peek().type == Type.Integer:
-                    x = self.next()
-                    node.children.append(Expression(int(x.value)))
-                else:
-                    node.children.append(self.parseExpression())
-                return node
+                 left = AConstant(left.value)
+        
+        tk = self.peek()
+        if self.is_operator(tk.type):  # left can be part of some outer expression
+            self.next()
+            op = tk.type
+            right = self.parse_AExpr()
+            return ABinaryOp(op, left, right)
+        else:
+            return left
 
+    def is_operator(self, type_token):
+        return type_token in [Operator.Add, Operator.Subtract,
+                              Operator.Divide, Operator.Multiply]
 
     def parse(self):
         # print(self.tokens, "\n")
 
-        print(self.parseExpression())
+        print(self.parse_AExpr())

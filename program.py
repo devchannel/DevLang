@@ -11,9 +11,9 @@ def main():
     # parser = P.Parser(tokens)
     # parser.parse()
 
-    lexer1 = L.Lexer("1 / 2 * 5")
+    lexer1 = L.Lexer("1 - 2")
     tokens1 = lexer1.tokenize()
-    parser1 = P.Parser(tokens1)
+    P.test(tokens1)
     # parser1.parse()
 
 main()

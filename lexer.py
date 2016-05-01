@@ -156,4 +156,4 @@ class Lexer():
             token = self.get_token()
             tokens.append(token)
         # It returns a stack!!!
-        return list(reversed(tokens))
+        return tokens

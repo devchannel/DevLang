@@ -25,9 +25,9 @@ class ABrackets(AExpr):
         return "(" + self.a_expr.__str__() + ")"
 
 class ABinaryOp(AExpr):
-    def __init__(self, op, left, right):
-        self.op = op
+    def __init__(self, left, op, right):
         self.left = left
+        self.op = op
         self.right = right
 
     def __str__(self):

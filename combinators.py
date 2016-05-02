@@ -85,8 +85,15 @@ class Concatenate(Parser):
         if left_result:
             right_result = self.right.run(token_list)
             if right_result:
-                return Result((left_result.value, right_result.value)) 
+                return Result(self.vals_to_tuple(left_result.value, right_result.value)) 
         return None
+
+    def vals_to_tuple(self,left,right):
+        if type(left) is tuple:
+            return left + (right,)
+        else:
+            return (left, right)
+
 
 class Process(Parser):
     def __init__(self, parser, func):

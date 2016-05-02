@@ -7,7 +7,7 @@ def parse(tokens):
     return result
 
 def parse_ABinaryOp():
-    return parse_AConstant() + Tag(Operator.Subtract) + parse_AConstant() ^ bin_op_func
+    return parse_AConstant() + Tag(Operator.Subtract) + parse_AConstant() ^ (lambda x: ABinaryOp(*x))
 
 def abin_op_func(parsed):
     ((x,y),z) = parsed

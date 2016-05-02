@@ -1,19 +1,13 @@
 import lexer as L
-import tokenParser as P
+import parsers as P
 
 
 # Maybe we should change the implementation of Lexer and tokenParser
 # to a pure implementation
 def main():
-    # lexer = L.Lexer("((1-2)+((3+4)))")
-    # lexer = L.Lexer("4 + (5 - 2) ")
-    # tokens = lexer.tokenize()
-    # parser = P.Parser(tokens)
-    # parser.parse()
-
-    lexer1 = L.Lexer("1 - 2")
-    tokens1 = lexer1.tokenize()
-    P.test(tokens1)
-    # parser1.parse()
+    lexer = L.Lexer("1 - 2")
+    tokens = lexer.tokenize()
+    result = P.parse(tokens)
+    print(result)
 
 main()

@@ -1,35 +1,40 @@
 from enum import Enum
 
-
+# RENAME THIS!!!
 class Operator(Enum):
     Add = '+'
     Subtract = '-'
     Multiply = '*'
     Divide = '/'
     FunctionOneLine = '='
-    FunctionMultiLine = '=>'
     ArgumentList = '->'
-    TypeSeparator = '|'
+    FunctionMultiLine = '=>'
+    If = "If"
+    Else = "Else"
+    End = "End"
+    Return = "Return"
+    OpenBracket = "("
+    CloseBracket = ")"
+    OpenBrace = "{"
+    CloseBrace = "}"
+    Delimiter = ";"
+    Colon = ":"
 
 
-# The ones in the list in the lexer need to be first:
-# (OpenBracket, CloseBracket, Delimiter)
 class Special(Enum):
-    OpenBracket = 0
-    CloseBracket = 1
-    Delimiter = 2
-    EOF = 3
-    Unknown = 4
+    EOF = 0
+    Unknown = 1
+    Name = 2
+    TypeName = 3
 
 
 class Type(Enum):
-    Integer = 0
-    Char = 1
-    String = 2
-
-
-class Keyword(Enum):
-    Return = 0
+    Integer32 = "int32"
+    Integer64 = "int64"
+    Char = "char"
+    String = "string"
+    Float = "float"
+    Bool = "bool"
 
 
 class Token():

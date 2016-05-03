@@ -6,8 +6,11 @@ from errorHandler import ErrorHandler
 # Maybe we should change the implementation of Lexer and tokenParser
 # to a pure implementation
 def main():
+    with open("test.devlang") as file:
+        x = file.read()
+
     errorHandler = ErrorHandler()
-    lexer = L.Lexer("1 + 2", errorHandler)
+    lexer = L.Lexer(x, errorHandler)
     tokens = lexer.tokenize()
 
     # if there is any errors, print them and exit
@@ -15,9 +18,9 @@ def main():
         print(errorHandler)
         return
 
-    print(tokens)
+    print("\n".join(str(x) for x in tokens))
 
-    result = P.parse(tokens)
-    print(result)
+    # result = P.parse(tokens)
+    # print(result)
 
 main()

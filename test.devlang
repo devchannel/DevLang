@@ -1,0 +1,4 @@
+|int32|main -> |float|x =>
+	4 + 3;
+	|string|y = "foo";
+End

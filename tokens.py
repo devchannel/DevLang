@@ -19,7 +19,7 @@ class Special(Enum):
     CloseBracket = 1
     Delimiter = 2
     EOF = 3
-    NewLine = 4
+    Unknown = 4
 
 
 class Type(Enum):

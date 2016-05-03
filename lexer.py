@@ -3,7 +3,7 @@ from tokens import *
 
 
 class Lexer():
-    def __init__(self, program):
+    def __init__(self, program, errorHandler):
         # The program
         self.program = program
         # Our position in the program
@@ -12,28 +12,27 @@ class Lexer():
         self.loc = (0, 0)
         # The current token we are on
         self.cur_tok = None
-
-    def raise_error(self):
-        raise Exception("Ohnoes, an error occurred at position {}.".format(self.pos))
+        # The error handler
+        self.errorHandler = errorHandler
 
     def get_token(self):
         """
         This method moves us up, and breaks out another token
         """
-        program = self.program
-
-        if self.pos >= len(program):
-            return Token(Special.EOF, None, self.loc)
 
         # if it's a space then skip the character
-        while self.pos < len(program) and program[self.pos] == ' ':
+        while self.pos < len(self.program) and self.program[self.pos] in [' ', '\n', '  ']:
+            if self.program[self.pos] == "\n":
+                self.loc = Loc.nextLine(self.loc)
+                self.loc = Loc.setColumn(self.loc, 0)
+            else:
+                self.loc = Loc.nextColumn(self.loc)
             self.pos += 1
-            self.loc = Loc.nextColumn(self.loc)
 
-        if self.pos >= len(program):
+        if self.pos >= len(self.program):
             return Token(Special.EOF, None, self.loc)
 
-        cur_char = program[self.pos]
+        cur_char = self.program[self.pos]
 
         if cur_char.isdigit():
             return self.lex_int()
@@ -47,22 +46,19 @@ class Lexer():
 
         # We should probably declare this list somewhere better
         # Separate enum for these chars?????
-        # Do we really need to return a token for spaces?
         if cur_char in ['(', ')', ';']:
             self.pos += 1
             loc = self.loc
             self.loc = Loc.nextColumn(self.loc)
             return Token(Special(['(', ')', ';'].index(cur_char)), cur_char, loc)
 
-        if cur_char == "\n":
-            self.pos += 1
-            loc = self.loc
-            self.loc = Loc.nextLine(self.loc)
-            self.loc = Loc.setColumn(self.loc, 0)
-            return Token(Special.NewLine, "\n", loc)
-
         if self.maybe_operator(cur_char):
             return self.lex_op()
+
+        self.pos += 1
+        self.loc = Loc.nextColumn(self.loc)
+        self.errorHandler.add("Syntax", "Unknown character \'"+cur_char+"\'", self.loc)
+        return Token(Special.Unknown, None, self.loc)
 
     def lex_int(self):
         program = self.program
@@ -87,7 +83,8 @@ class Lexer():
         self.loc = Loc.moveColumnBy(self.loc, 2)
 
         if self.pos >= len(self.program) or self.program[self.pos] != "'":
-            self.raise_error()  # Error checking
+            self.errorHandler.add("Syntax", "Char literal was not closed", self.loc)
+            return Token(Special.Unknown, None, self.loc)
         self.pos += 1  # Get to the next position
         self.loc = Loc.nextColumn(self.loc)
 
@@ -99,14 +96,10 @@ class Lexer():
         program = self.program
 
         string = ""  # A running total
-        while program[self.pos] != '"':
+        while self.pos < len(self.program):
             if program[self.pos] == '\\' and program[self.pos + 1] == '"':
                 self.pos += 2  # Skip over the \ and "
                 self.loc = Loc.moveColumnBy(self.loc, 2)
-
-            string += program[self.pos]  # Append to our running total
-            self.pos += 1  # Move over a char
-            self.loc = Loc.nextColumn(self.loc)
 
             if program[self.pos] == '"':  # We've reached the end
                 self.pos += 1  # Skip over the " again
@@ -114,7 +107,12 @@ class Lexer():
                 self.loc = Loc.nextColumn(self.loc)
                 return Token(Type.String, string, loc)
 
-        self.raise_error()
+            string += program[self.pos]  # Append to our running total
+            self.pos += 1  # Move over a char
+            self.loc = Loc.nextColumn(self.loc)
+
+        self.errorHandler.add("Syntax", "String literal was not closed", self.loc)
+        return Token(Special.Unknown, None, self.loc)
 
     def lex_op(self):
         program = self.program
@@ -139,7 +137,8 @@ class Lexer():
                 matches.append(Token(op, op.value, loc))
 
         if(len(matches) == 0):
-            self.raise_error()  # We couldn't find any matches
+            self.errorHandler.add("Syntax", "Operator does not exist", self.loc)
+            return Token(Special.Unknown, False, self.loc)
         return max(matches, key=len)  # return the match that fit the most
 
     def maybe_operator(self, char):
@@ -155,5 +154,4 @@ class Lexer():
         while token.type != Special.EOF:
             token = self.get_token()
             tokens.append(token)
-        # It returns a stack!!!
         return tokens

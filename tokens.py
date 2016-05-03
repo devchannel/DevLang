@@ -1,7 +1,7 @@
 from enum import Enum
 
-# RENAME THIS!!!
-class Operator(Enum):
+# not sure what I should have called this
+class Symbol(Enum):
     Add = '+'
     Subtract = '-'
     Multiply = '*'

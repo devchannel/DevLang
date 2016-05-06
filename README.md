@@ -1,6 +1,6 @@
-##WARNING:
+##Under construction:
 
-This document is incomplete, the complete version is in a google doc which not available yet.
+This document is incomplete, the most up to date version can be viewed [here](https://docs.google.com/document/d/1Wgv1mFhS7QLXeMiKywPW4d4QxSMqi6jdzJfKoCRohWg/edit?usp=sharing).
 
 
 #DevLang

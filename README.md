@@ -1,3 +1,8 @@
+##WARNING:
+
+This document is incomplete, the complete version is in a google doc which not available yet.
+
+
 #DevLang
 
 DevLang is a pure functional programming language written in Python created by the DevChannel slack team with the goal of implementing a full fledged compiler. In contrast to functional programming languages such as Haskell, DevLang code is written in an imperative style while keeping the foundations of a functional programming language.

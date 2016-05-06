@@ -146,11 +146,10 @@ class Lexer():
         return Token(Special.Unknown, None, loc)
 
     def lex_op(self):
-        program = self.program
         matches = []  # maintain a list of all matches
         _loc = self.loc
 
-        for op in Operator:
+        for op in Symbol:
             pos = self.pos
             loc = self.loc
             index = 0
@@ -159,7 +158,7 @@ class Lexer():
                 continue  # move to the next operator
 
             # loop through the operator, checking each char
-            while index < len(op.value) and pos < len(self.program) and program[pos] == op.value[index]:
+            while index < len(op.value) and pos < len(self.program) and self.program[pos] == op.value[index]:
                 pos += 1
                 loc = Loc.nextColumn(loc)
                 index += 1
@@ -169,7 +168,7 @@ class Lexer():
                 matches.append(Token(op, op.value, _loc))
 
         if(len(matches) == 0):
-            self.errorHandler.add("Syntax", "Operator does not exist", self.loc)
+            self.errorHandler.add("Syntax", "Symbol "+self.program[self.pos]+" does not exist", self.loc)
             self.pos += 1
             self.loc = Loc.nextColumn(self.loc)
             return Token(Special.Unknown, False, _loc)
@@ -178,7 +177,7 @@ class Lexer():
         return max(matches, key=len)  # return the match that fit the most
 
     def maybe_operator(self, char):
-        for op in Operator:
+        for op in Symbol:
             if char == op.value[0]:
                 return True
         return False

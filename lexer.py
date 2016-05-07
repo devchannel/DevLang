@@ -42,7 +42,7 @@ class Lexer():
         if cur_char.isdigit():
             return self.lex_int()
 
-        if cur_char in string.ascii_letters+"_":
+        if cur_char in string.ascii_letters + "_":
             return self.lex_name()
 
         if cur_char == "'":

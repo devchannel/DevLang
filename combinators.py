@@ -43,6 +43,14 @@ class Reserved(Parser):
         return None
 """
 
+class Default(Parser):
+    def __init__(self, val):
+        self.val = val
+
+    def run(self, token_list):
+        return Result(self.val)
+
+
 class Tag(Parser):
     def __init__(self, token_type):
         self.token_type = token_type
@@ -60,6 +68,7 @@ class Alternate(Parser):
         self.right = right
 
     def run(self,token_list):
+        print(str(token_list))
         pos = token_list.pos
         left_result = self.left.run(token_list)
         if left_result:
@@ -94,6 +103,18 @@ class Concatenate(Parser):
         else:
             return (left, right)
 
+class Repeat(Parser):
+    def __init__(self, parser):
+        self.parser = parser
+
+    def run(self, token_list):
+        results = []
+        result = self.parser.run(token_list)
+        while result:
+            results.append(result)
+            result = self.parser.run(token_list)
+
+        return Result(results)
 
 class Process(Parser):
     def __init__(self, parser, func):

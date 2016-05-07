@@ -3,13 +3,9 @@
 class Program():
     pass
 
-class PFunction(Program):
-    def __init__(self, function, program):
-        self.function = function
-        self.program = program
-
-class PEmpty(Program):
-    pass
+class ProgramFunctions(Program):
+    def __init__(self, functions):
+        self.functions = functions
 
 # Functions
 class Function():
@@ -44,19 +40,10 @@ class PrmEmpty(PrmDeclaration):
 
 # If the parameter declaration is not empty
 # then we must have at least one parameter
-class Parameters():
-    pass
-
-class Parameter(Parameters):
-    def __init__(self, type, name, params):
-        self.type = type
-        self.name = name
-        self.params = params
-
-class ParameterSingle(Parameters):
-    def __init__(self, type, name):
-        self.type = type
-        self.name = name
+class Parameter():
+    def __init__(self, type_name, var_name):
+        self.type_name = type_name
+        self.var_name = var_name
 
 class FunctionCall():
     def __init__(self, name, args):
@@ -66,28 +53,8 @@ class FunctionCall():
 # sequence of expressions
 
 class Arguments():
-    pass
-
-class Argument(Arguments):
-    def __init__(self, expr, args):
-        self.expr = expr
+    def __init__(self, args):
         self.args = args
-
-class ArgEmpty(Arguments):
-    pass
-
-# Code block is a sequence of lines
-
-class CodeBlock():
-    pass
-
-class CodeLine(CodeBlock):
-    def __init__(self, stmt, code_block):
-        self.stmt = stmt
-        self.code_block = code_block
-
-class CodeEnd(CodeBlock):
-    pass
 
 #statements
 

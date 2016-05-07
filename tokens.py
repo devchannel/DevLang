@@ -13,12 +13,18 @@ class Symbol(Enum):
     Else = "Else"
     End = "End"
     Return = "Return"
+    For = "For"
+    In = "in"
+    Case = "Case"
+    TrueVal = "True"
+    FalseVal = "False"
     OpenBracket = "("
     CloseBracket = ")"
     OpenBrace = "{"
     CloseBrace = "}"
     Delimiter = ";"
     Colon = ":"
+    Dot = "."
 
 
 class Special(Enum):

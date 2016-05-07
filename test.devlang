@@ -1,4 +1,11 @@
 |int32|main -> |float|x =>
-	4 + 3;
-	|string|y = "foo";
+	|int|a = 4
+End
+
+dong -> |float|x |string|y =>
+	|int|a = 4
+	a = 4
+	While True =>
+		a = 5
+	End
 End

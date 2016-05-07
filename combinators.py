@@ -61,6 +61,9 @@ class Tag(Parser):
             return Result(tk.value)
         return None
 
+    def __str__(self):
+        return "Tag("+str(self.token_type)+")"
+
 
 class Alternate(Parser):
     def __init__(self, left, right):
@@ -68,7 +71,6 @@ class Alternate(Parser):
         self.right = right
 
     def run(self,token_list):
-        print(str(token_list))
         pos = token_list.pos
         left_result = self.left.run(token_list)
         if left_result:
@@ -80,6 +82,9 @@ class Alternate(Parser):
                 return right_result
             else:
                 return None
+
+    def __str__(self):
+        return str(self.left)+" | "+str(self.right)
 
 # Returns a tuple of the results of two parsers
 # return None if either parser fails
@@ -94,7 +99,7 @@ class Concatenate(Parser):
         if left_result:
             right_result = self.right.run(token_list)
             if right_result:
-                return Result(self.vals_to_tuple(left_result.value, right_result.value)) 
+                return Result(self.vals_to_tuple(left_result.value, right_result.value))
         return None
 
     def vals_to_tuple(self,left,right):
@@ -102,6 +107,9 @@ class Concatenate(Parser):
             return left + (right,)
         else:
             return (left, right)
+
+    def __str__(self):
+        return str(self.left)+" + "+str(self.right)
 
 class Repeat(Parser):
     def __init__(self, parser):
@@ -138,3 +146,6 @@ class Process(Parser):
             result.value = self.func(result.value)
             return result
         return None
+
+    def __str__(self):
+        return str(self.parser)+" ^ "+self.func.__name__

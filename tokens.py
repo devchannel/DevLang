@@ -14,6 +14,7 @@ class Symbol(Enum):
     End = "End"
     Return = "Return"
     For = "For"
+    While = "While"
     In = "in"
     Case = "Case"
     TrueVal = "True"

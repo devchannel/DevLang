@@ -1,6 +1,7 @@
 from combinators import *
 from tokenList import *
 
+# TODO: define parse_cases()
 
 # Create a TokenList datastructure which is used by the 
 # parser combinators for parsing.
@@ -22,10 +23,10 @@ def process_program(list_function):
 def parse_function():
     return parse_typed_function() | parse_untyped_function()
 
-# Name|Type| param_decl -> code_block
+# |Type|Name param_decl -> code_block
 def parse_typed_function():
     return (
-        parse_func_name()  + parse_type() + 
+        parse_type()  + parse_func_name() + 
         parse_param_decl() + parse_begin_code_sym() + 
         parse_code_block() ^ process_typed_function
         )
@@ -80,7 +81,7 @@ def process_params(result_tulple):
 
 # Name arg1 arg2 arg3
 def parse_func_call():
-    return parse_func_name + parse_args() ^ process_func_call
+    return parse_func_name() + parse_args() ^ process_func_call
 
 def process_func_call(result_tuple):
     (func_name, list_args) = result_tulple
@@ -103,21 +104,14 @@ def process_code_block(result_tuple):
 
 
 def parse_stmt():
-    return (
-        parse_if_stmt()
-    |
-        parse_return_stmt()
-    |
-        parse_decl_stmt()
-    |
-        parse_assign_stmt()
-    |
-        parse_case_stmt()
-    |
-        parse_while_stmt()
-    |
-        parse_for_stmt()
-        )
+    return (parse_if_stmt()
+            | parse_return_stmt()
+            | parse_decl_stmt()
+            | parse_assign_stmt()
+            # | parse_case_stmt()
+            | parse_while_stmt()
+            | parse_for_stmt()
+           )
 
 # Typed assignment. The var should not yet exist
 # |Type Var| = expr
@@ -130,7 +124,7 @@ def parse_decl_stmt():
 
 def process_decl_stmt(result_tuple):
     (type_name, var_name, _, expr) = result_tuple
-    return DeclSttm(type_name, var_name, expr)
+    return DeclStmt(type_name, var_name, expr)
 
 # Typeless assignment. The var should already exist
 # Var = expr
@@ -170,12 +164,14 @@ def process_return_stmt(result_tuple):
 
 # Case expr =>
 #  cases
-def parse_case_stmt():
-    return (
-        parse_case_key() + parse_expr() +
-        parse_begin_code() + parse_cases() ^
-        process_case_stmt
-        )
+
+# PARSE_CASES() IS UNDEFINED!!!
+# def parse_case_stmt():
+#     (
+#     parse_case_key() + parse_expr() +
+#     parse_begin_code_sym() + parse_cases() ^
+#     process_case_stmt
+#     )
 
 def process_case_stmt(result_tuple):
     (_, expr, _, cases)
@@ -185,7 +181,7 @@ def process_case_stmt(result_tuple):
 def parse_while_stmt():
     return (
         parse_while_key() + parse_bexpr() +
-        parse_begin_code() + parse_code_block() ^ process_while_stmt
+        parse_begin_code_sym() + parse_code_block() ^ process_while_stmt
         )
 
 def process_while_stmt(result_tuple):
@@ -196,10 +192,10 @@ def process_while_stmt(result_tuple):
 def parse_for_stmt():
     return (
         parse_for_key() + parse_var() +
-        parse_in_key() + parse_AConstant() + 
-        parse_range_sym() + parse_AConstant() +
-        parse_begin_code + parse_code_block() ^
-        process_form_stmt
+        parse_in_key() + parse_constant_aexpr() + 
+        parse_range_sym() + parse_constant_aexpr() +
+        parse_begin_code_sym() + parse_code_block() ^
+        process_for_stmt
         )
 
 def process_for_stmt(result_tuple):

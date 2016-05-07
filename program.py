@@ -21,6 +21,6 @@ def main():
     #print("\n".join(str(x) for x in tokens))
 
     result = P.parse(tokens)
-    print(str(result))
+    print(result)
 
 main()

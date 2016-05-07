@@ -116,6 +116,17 @@ class Repeat(Parser):
 
         return Result(results)
 
+class Lazy(Parser):
+    def __init__(self, parser_func):
+        self.parser = None
+        self.parser_func = parser_func
+
+    def run(self, token_list):
+        if not self.parser:
+            self.parser = self.parser_func()
+        return self.parser.run(token_list)
+
+
 class Process(Parser):
     def __init__(self, parser, func):
         self.parser = parser

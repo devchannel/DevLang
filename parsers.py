@@ -38,8 +38,8 @@ def process_typed_function(result_tuple):
 def parse_untyped_function():
     return (
         parse_func_name() + 
-        parse_param_decl() + parse_begin_code + 
-        parse_code_block ^ process_untyped_function
+        parse_param_decl() + parse_begin_code_sym() + 
+        parse_code_block() ^ process_untyped_function
         )
 
 def process_untyped_function(result_tuple):
@@ -88,14 +88,14 @@ def process_func_call(result_tuple):
 
 # Arguments is a collection of expressions
 def parse_args():
-    return Repeat(parse_expr()) ^ process_args
+    return Repeat(Lazy(parse_expr)) ^ process_args
 
 def process_args(list_expr):
     return Arguments(list_expr)
 
 # List of statements that ends with the keyword End
 def parse_code_block():
-    return Repeat(parse_stmt()) + parse_end_key() ^ process_code_block
+    return Repeat(Lazy(parse_stmt)) + parse_end_key() ^ process_code_block
 
 def process_code_block(result_tuple):
     (list_stmt, _) = result_tuple
@@ -151,8 +151,8 @@ def process_assign_stmt(result_tuple):
 def parse_if_stmt():
     return (
         parse_if_key() + parse_bexpr() +
-        parse_begin_code() + parse_code_block() +
-        parse_begin_code() + parse_code_block() ^
+        parse_begin_code_sym() + parse_code_block() +
+        parse_begin_code_sym() + parse_code_block() ^
         process_if_stmt
         )
 

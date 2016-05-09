@@ -15,6 +15,9 @@ class ProgramFunctions(Program):
         out = "\n\n".join(str(i) for i in self.functions)
         return out
 
+    def __repr__(self):
+        return "Program("+repr(self.functions)+")"
+
 # Functions
 class Function():
     pass
@@ -32,6 +35,10 @@ class FTyped(Function):
         out += indentString("\n".join(str(i) for i in self.body))
         return out
 
+    def __repr__(self):
+        return "FTyped("+self.type+", "+self.name+", "+repr(self.params)+", "+repr(self.body)+")"
+
+
 class FUntyped(Function):
     def __init__(self, name, params, body):
         self.name = name
@@ -43,6 +50,10 @@ class FUntyped(Function):
         out += "Untyped Function: "+self.name+" -> Parameters: "+str(self.params)+":\n"
         out += indentString("\n".join(str(i) for i in self.body))
         return out
+
+    def __repr__(self):
+        return "FUntyped("+self.name+", "+repr(self.params)+", "+repr(self.body)+")"
+
 
 # Parameter declaration
 
@@ -56,8 +67,12 @@ class PrmDecl(PrmDeclaration):
     def __str__(self):
         return ", ".join(str(i) for i in self.params)
 
+    def __repr__(self):
+        return "PrmDecl("+repr(self.params)+")"
+
 class PrmEmpty(PrmDeclaration):
-    pass
+    def __repr__(self):
+        return "PrmEmpty"
 
 # parameters
 
@@ -71,6 +86,9 @@ class Parameter():
     def __str__(self):
         return self.var_name+"("+self.type_name+")"
 
+    def __repr__(self):
+        return "Parameter("+self.type_name+", "+self.var_name+")"
+
 class FunctionCall():
     def __init__(self, name, args):
         self.name = name
@@ -78,6 +96,9 @@ class FunctionCall():
 
     def __str__(self):
         return name+str(args)
+
+    def __repr__(self):
+        return "FunctionCall("+self.name+", "+self.args+")"
 
 # sequence of expressions
 
@@ -88,19 +109,25 @@ class Arguments():
     def __str__(self):
         return "("+", ".join(str(i) for i in self.args)+")"
 
+    def __repr__(self):
+        return "Arguments("+repr(self.args)+")"
+
 #statements
 
 class Statement():
     pass
 
 class DeclStmt(Statement):
-    def __init__(self, type, name, expr):
-        self.type = type
+    def __init__(self, t, name, expr):
+        self.type = t
         self.name = name
         self.expr = expr
 
     def __str__(self):
-        return "Declare "+self.name+"("+self.type+") = "+str(self.expr)
+        return "Declare "+self.type+"("+self.type+") = "+str(self.expr)
+
+    def __repr__(self):
+        return "DeclStmt("+self.type+", "+self.name+", "+repr(self.expr)+")"
 
 class AssignStmt(Statement):
     def __init__(self, name, expr):
@@ -109,6 +136,9 @@ class AssignStmt(Statement):
 
     def __str__(self):
         return "Assign "+self.name+" = "+str(self.expr)
+
+    def __repr__(self):
+        return "AssignStmt("+self.name+", "+repr(self.expr)+")"
 
 # What are block 1 and 2? I will assume Else
 class IfStmt(Statement):
@@ -124,6 +154,9 @@ class IfStmt(Statement):
         out += indentString("\n".join(str(i) for i in self.b2))
         return out
 
+    def __repr__(self):
+        return "IfStmt("+repr(self.cond)+", "+repr(self.b1)+", "+repr(self.b2)+")"
+
 class ForStmt(Statement):
     def __init__(self, name, low, high, block):
         self.name = name
@@ -136,6 +169,9 @@ class ForStmt(Statement):
         out += indentString("\n".join(str(i) for i in self.block))
         return out
 
+    def __repr__(self):
+        return "ForStmt("+self.name+", "+repr(self.low)+", "+repr(self.high)+", "+repr(self.block)+")"
+
 class WhileStmt(Statement):
     def __init__(self, cond, block):
         self.cond = cond
@@ -145,6 +181,9 @@ class WhileStmt(Statement):
         out = "While "+str(self.cond)+" do\n"
         out += indentString("\n".join(str(i) for i in self.block))
         return out
+
+    def __repr__(self):
+        return "WhileStmt("+repr(self.cond)+", "+repr(self.block)+")"
 
 class CaseStmt(Statement):
     def __init__(self, expr, cases):
@@ -156,12 +195,18 @@ class CaseStmt(Statement):
         out += indentString(str(self.cases))
         return out
 
+    def __repr__(self):
+        return "CaseStmt("+repr(self.expr)+", "+repr(self.cases)+")"
+
 class ReturnStmt(Statement):
     def __init__(self, expr):
         self.expr = expr
 
     def __str__(self):
         return "Return "+self.expr
+
+    def __repr__(self):
+        return "ReturnStmt("+repr(self.expr)+")"
 
 # Different cases of a case stmt
 
@@ -180,8 +225,12 @@ class Case(Cases):
         out += str(self.cases)
         return out
 
+    def __repr__(self):
+        return "Case("+repr(self.expr)+", "+repr(self.block)+", "+repr(self.cases)+")"
+
 class CaseEmpty(Cases):
-    pass
+    def __repr__(self):
+        return "CaseEmpty"
 
 #  Expressions
 class Expr():
@@ -198,6 +247,9 @@ class AConstant(AExpr):
     def __str__(self):
         return str(self.val)
 
+    def __repr__(self):
+        return "AConstant("+repr(self.val)+")"
+
 
 class AVar(AExpr):
     def __init__(self,name):
@@ -205,6 +257,9 @@ class AVar(AExpr):
 
     def __str__(self):
         return "AVar["+self.name+"]"
+
+    def __repr__(self):
+        return "AVar("+self.name+")"
 
 class AFuncCall(AExpr):
     def __init__(self, name, args):
@@ -214,12 +269,19 @@ class AFuncCall(AExpr):
     def __str__(self):
         return "AFuncCall["+self.name+"("+ ", ".join(i for i in self.args) +")]"
 
+    def __repr__(self):
+        return "AFuncCall("+self.name+", "+repr(self.args)+")"
+
+
 class ABrackets(AExpr):
     def __init__(self,a_expr):
         self.a_expr = a_expr
 
     def __str__(self):
         return "("+str(self.a_expr)+")"
+
+    def __repr__(self):
+        return "ABrackets("+repr(self.a_expr)+")"
 
 class ABinaryOp(AExpr):
     def __init__(self, left, op, right):
@@ -229,6 +291,9 @@ class ABinaryOp(AExpr):
 
     def __str__(self):
         return str(self.left)+" "+str(self.op)+" "+str(self.right)
+
+    def __repr__(self):
+        return "ABinaryOp("+repr(self.left)+", "+repr(self.op)+", "+repr(self.right)+")"
 
 #  Boolean Expressions
 
@@ -242,12 +307,18 @@ class BConstant(BExpr):
     def __str__(self):
         return "BConstant["+str(self.val)+"]"
 
+    def __repr__(self):
+        return "BConstant("+repr(self.val)+")"
+
 class BVar(BExpr):
     def __init__(self,val):
         self.name = name
 
     def __str__(self):
         return "BVar["+str(self.val)+"]"
+
+    def __repr__(self):
+        return "BVar("+self.name+")"
 
 class BFuncCall(BExpr):
     def __init__(self, name, args):
@@ -257,6 +328,9 @@ class BFuncCall(BExpr):
     def __str__(self):
         return "BFuncCall["+self.name+"("+ ", ".join(i for i in self.args) +")]"
 
+    def __repr__(self):
+        return "BFuncCall("+self.name+", "+repr(self.args)+")"
+
 class BBrackets(BExpr):
     def __init__(self,b_expr):
         self.b_expr = b_expr
@@ -264,12 +338,18 @@ class BBrackets(BExpr):
     def __str__(self):
         return "("+str(self.b_expr)+")"
 
+    def __repr__(self):
+        return "BBrackets("+repr(self.b_expr)+")"
+
 class BUnary(BExpr):
     def __init__(self,b_expr):
         self.b_expr = b_expr
 
     def __str__(self):
         return "BUnary["+str(self.b_expr)+"]"
+
+    def __repr__(self):
+        return "BUnary("+repr(self.b_expr)+")"
 
 class BBinaryOp(BExpr):
     def __init__(self, left, op, right):
@@ -279,3 +359,6 @@ class BBinaryOp(BExpr):
 
     def __str__(self):
         return str(self.left)+" "+str(self.op)+" "+str(self.right)
+
+    def __repr__(self):
+        return "BBinaryOp("+repr(self.left)+", "+repr(self.op)+", "+repr(self.right)+")"

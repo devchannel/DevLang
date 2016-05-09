@@ -3,7 +3,7 @@ class Result():
         self.value = value
 
     def __repr__(self):
-        return str(self.value)
+        return repr(self.value)
 
     def __str__(self):
         return str(self.value)

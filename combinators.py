@@ -96,6 +96,7 @@ class Concatenate(Parser):
 
     def run(self, token_list):
         left_result = self.left.run(token_list)
+        print(repr(left_result))
         if left_result:
             right_result = self.right.run(token_list)
             if right_result:

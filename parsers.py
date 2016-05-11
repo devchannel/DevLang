@@ -172,7 +172,7 @@ def process_assign_stmt(result_tuple):
 #    code_block
 def parse_if_stmt():
     return (
-        parse_if_key() + parse_bexpr() +
+        parse_if_key() + parse_bexpr() + 
         parse_begin_code_sym() + parse_code_block() +
         parse_begin_code_sym() + parse_code_block() ^
         process_if_stmt
@@ -262,7 +262,7 @@ def process_func_call_aexpr(result_tuple):
 
 def parse_brackets_aexpr():
     return (
-        parse_open_bracket_sym() + parse_aexpr() + parse_close_bracket_sym() ^
+        parse_open_bracket_sym() + Lazy(parse_aexpr) + parse_close_bracket_sym() ^
         process_brackets_bexpr
         )
 
@@ -275,28 +275,34 @@ def parse_aexpr():
     return parse_level3_aexpr()
 
 def chain_aexpr(tuple_list):
-    chain(tuple_list, ABinaryOp)
+    return chain(tuple_list, ABinaryOp)
 
 def parse_level3_aexpr():
     return ChainL(parse_level2_aexpr(), parse_level3_ops()) ^ chain_aexpr
 
 def parse_level3_ops():
-    Tag(Symbol.Add) | Tag(Symbol.Subtract)
+    return Tag(Symbol.Add) | Tag(Symbol.Subtract)
 
 def parse_level2_aexpr():
     return ChainL(parse_term_aexpr(), parse_level2_ops()) ^ chain_aexpr
 
 def parse_level2_ops():
-    Tag(Symbol.Multiply) | Tag(Symbol.Divide)
+    return Tag(Symbol.Multiply) | Tag(Symbol.Divide)
 
 
 def parse_term_bexpr():
     return (
+        parse_aexpr() + parse_rel_op() + parse_aexpr() ^ process_rel_bexpr
+    |
         parse_constant_bexpr()
     |
         parse_var_bexpr()
     |
         parse_func_call_bexpr()
+    |
+        parse_brackets_bexpr()
+    |
+        Tag(Symbol.Not) + Lazy(parse_bexpr) ^ process_not_bexpr
         )
 
 def parse_constant_bexpr():
@@ -312,48 +318,46 @@ def process_func_call_bexpr(result_tuple):
     (func_name, args) = result_tuple
     return BFuncCall(func_name, args)
 
-def parse_bexpr():
+def parse_brackets_bexpr():
     return (
-        parse_term_bexpr() + Tag(Symbol.Lt) + parse_bexpr() ^ process_rel_bexpr
-    |
-        parse_term_bexpr() + Tag(Symbol.Lte) + parse_bexpr() ^ process_rel_bexpr
-    |
-        parse_term_bexpr() + Tag(Symbol.Gt) + parse_bexpr() ^ process_rel_bexpr
-    |
-        parse_term_bexpr() + Tag(Symbol.Gte) + parse_bexpr() ^ process_rel_bexpr
-    |
-        parse_term_bexpr() + Tag(Symbol.Eq) + parse_bexpr() ^ process_rel_bexpr
-    |
-        parse_term_bexpr() + Tag(Symbol.And) + parse_bexpr() ^ process_And
-    |
-        parse_term_bexpr() + Tag(Symbol.Or) + parse_bexpr() ^ process_Or
-    |
-        Tag(Symbol.Not) + parse_bexpr() ^ process_Not
-    |
-        Tag(Symbol.OpenBracket) + parse_bexpr() + Tag(Symbol.CloseBracket) ^ process_brackets_bexpr
-    |
-        parse_term_bexpr()    
+        parse_open_bracket_sym() + Lazy(parse_bexpr) + parse_close_bracket_sym() ^
+        process_brackets_bexpr
+        )
+
+def process_brackets_bexpr(result_tuple):
+    (_, bexpr, _) = result_tuple
+    return BBrackets(bexpr)
+
+def process_not_bexpr(result_tuple):
+    (_, bexpr) = result_tuple
+    return BNot(bexpr)
+
+def parse_bexpr():
+    return parse_level3_bexpr()
+
+
+def chain_and_bexpr(tuple_list):
+    return chain(tuple_list, (lambda l, op, r: BAnd(l, r)))
+
+def chain_or_bexpr(tuple_list):
+    return chain(tuple_list, (lambda l, op, r: BOr(l, r)))
+
+def parse_level3_bexpr():
+    return ChainL(parse_level2_bexpr(), Tag(Symbol.Or)) ^ chain_or_bexpr
+
+def parse_level2_bexpr():
+    return ChainL(parse_term_bexpr(), Tag(Symbol.And)) ^ chain_and_bexpr
+
+def parse_rel_op():
+    return (
+        Tag(Symbol.Lt) | Tag(Symbol.Lte) |
+        Tag(Symbol.Gt) | Tag(Symbol.Gte) |
+        Tag(Symbol.Eq) | Tag(Symbol.Neq)
         )
 
 def process_rel_bexpr(result_tuple):
     (term, op, bexpr) = result_tuple
     return BRelOp(term, op, bexpr)
-
-def process_And(result_tuple):
-    (term, _, bexpr) = result_tuple
-    return BAnd(term, bexpr)
-
-def process_Or(result_tuple):
-    (term, _, bexpr) = result_tulple
-    return BOr(term, bexpr)
-
-def process_Not(result_tuple):
-    (_, bexpr) = result_tuple
-    return BNot(bexpr)
-
-def process_brackets_bexpr(result_tuple):
-    (_, bexpr, _) = result_tuple
-    return BBrackets(bexpr)
 
 
 def chain(result_tuple, constructor):
@@ -362,10 +366,13 @@ def chain(result_tuple, constructor):
     if len(tuples) > 1:
         (op, expr) = tuples[0]
         chain = chainAdd((constructor(term, op, expr), tuples[1:]))
-        print(chain)
+        print("test" + repr(chain))
         return chain
     elif len(tuples) == 1:
         (op, expr) = tuples[0]
+        print(repr(term))
+        print(repr(op))
+        print(repr(expr))
         return constructor(term, op, expr)
     else:
         return term

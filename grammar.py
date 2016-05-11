@@ -311,7 +311,7 @@ class BConstant(BExpr):
         return "BConstant("+repr(self.val)+")"
 
 class BVar(BExpr):
-    def __init__(self,val):
+    def __init__(self, name):
         self.name = name
 
     def __str__(self):

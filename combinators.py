@@ -3,7 +3,7 @@ class Result():
         self.value = value
 
     def __repr__(self):
-        return repr(self.value)
+        return "Result("+repr(self.value)+")"
 
     def __str__(self):
         return str(self.value)
@@ -123,6 +123,30 @@ class Repeat(Parser):
             result = self.parser.run(token_list)
 
         return Result(results)
+
+class ChainL(Parser):
+    def __init__(self, parser, separator):
+        self.parser = parser
+        self.separator = separator
+
+    def run(self, token_list):
+        result = self.parser.run(token_list)
+
+        print("before: " + repr(result))
+        results = (result.value,[])
+
+        next_result = result
+        while next_result:
+            next_parsed = Concatenate(self.separator, self.parser)
+            next_result = next_parsed.run(token_list)
+            if next_result:
+                result = next_result.value
+                results[1].append(result)
+
+        print("after: " + repr(results))
+        return Result(results)
+
+        
 
 class Lazy(Parser):
     def __init__(self, parser_func):

@@ -6,6 +6,14 @@ class Symbol(Enum):
     Subtract = '-'
     Multiply = '*'
     Divide = '/'
+    # And = "&&"
+    # Or = "||"
+    # Not = "!"
+    # Lt = "<"
+    # Lte = "<="
+    # Gt = ">"
+    # Gte = ">="
+    # Eq = "=="
     FunctionOneLine = '='
     ArgumentList = '->'
     FunctionMultiLine = '=>'

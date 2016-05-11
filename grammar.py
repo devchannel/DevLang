@@ -341,17 +341,39 @@ class BBrackets(BExpr):
     def __repr__(self):
         return "BBrackets("+repr(self.b_expr)+")"
 
-class BUnary(BExpr):
-    def __init__(self,b_expr):
-        self.b_expr = b_expr
+class BAnd(BExpr):
+    def __init__(self, left, right):
+        self.left = left
+        self.right = right
 
-    def __str__(self):
-        return "BUnary["+str(self.b_expr)+"]"
+    def __str__(self): 
+        return str(self.left) + " " + "&&" + " " + str(self.right)
 
     def __repr__(self):
-        return "BUnary("+repr(self.b_expr)+")"
+        return "BAnd(" + repr(self.left) + ", " + repr(self.right) + ")"
 
-class BBinaryOp(BExpr):
+class BOr(BExpr):
+    def __init__(self, left, right):
+        self.left = left
+        self.right = right
+
+    def __str__(self): 
+        return str(self.left) + " " + "||" + " " + str(self.right)
+
+    def __repr__(self):
+        return "BOr(" + repr(self.left) + ", " + repr(self.right) + ")"
+
+class BNot(BExpr):
+    def __init__(self, b_expr):
+        self.b_expr = b_expr
+
+    def __str__(self): 
+        return "!" + str(self.b_expr)
+
+    def __repr__(self):
+        return "BNot(" + repr(self.b_expr) + ")"
+
+class BRelOp(BExpr):
     def __init__(self, left, op, right):
         self.op = op
         self.left = left
@@ -361,4 +383,4 @@ class BBinaryOp(BExpr):
         return str(self.left)+" "+str(self.op)+" "+str(self.right)
 
     def __repr__(self):
-        return "BBinaryOp("+repr(self.left)+", "+repr(self.op)+", "+repr(self.right)+")"
+        return "BRelOp("+repr(self.left)+", "+repr(self.op)+", "+repr(self.right)+")"

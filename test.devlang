@@ -1,11 +1,3 @@
 |int32|main -> |float|x =>
-	|int|a = 4
-End
-
-dong -> |float|x |string|y =>
-	|int|a = 4
-	a = 4
-	While True =>
-		a = 5
-	End
+    |int|a = 2 * 4 + 9 / 2
 End

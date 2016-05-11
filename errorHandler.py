@@ -1,4 +1,8 @@
 
+# for nice output
+def indentString(str):
+    return "\n".join(" -> "+x for x in str.split("\n"))
+
 # Class to store an error
 class Error:
     def __init__(self, typ, message, location):
@@ -14,7 +18,7 @@ class Error:
     def __str__(self):
         out = ""
         out += self.type + " error on line " + str(self.location[0]) + ", column " + str(self.location[1]) + ":\n"
-        out += " -> " + self.message
+        out += indentString(self.message)
         return out
 
 # Class to store errors

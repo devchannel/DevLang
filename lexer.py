@@ -11,7 +11,7 @@ class Lexer():
         # Our position in the program
         self.pos = 0
         # tuple of line number and column number
-        self.loc = (0, 0)
+        self.loc = (1, 0)
         # The current token we are on
         self.cur_tok = None
         # The error handler
@@ -32,7 +32,7 @@ class Lexer():
             self.pos += 1
 
         if self.pos >= len(self.program):
-            return Token(Special.EOF, None, self.loc)
+            return Token(Special.EOF, True, self.loc)
 
         cur_char = self.program[self.pos]
 

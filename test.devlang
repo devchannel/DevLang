@@ -1,11 +1,11 @@
-|int32|main -> |float|x =>
+|int32|main -> |float|x |string|y =>
 	|int|a = 4
 End
 
-dong -> |float|x |string|y =>
+dong -> |3|yo =>
 	|int|a = 4
 	a = 4
 	While True =>
-		a = 5
+		a = "d"b
 	End
 End

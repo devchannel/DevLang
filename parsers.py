@@ -11,25 +11,25 @@ def parse(tokens, errorHandler):
     token_list = TokenList(tokens)
     result = parse_program().run(token_list)
     if not result:
-        errorHandler.add("Parse", result.error, (-1, -1))
+        errorHandler.add("Parse", result.error, result.location)
     return result
 
 # program is a collection of functions
 def parse_program():
-    return (Repeat(parse_function()) ^ process_program) * "Failed parsing program"
+    return (All(Repeat(parse_function())) ^ process_program) * "Failed parsing program"
 
 def process_program(list_function):
     return ProgramFunctions(list_function)
 
 # There are typed and untyped functions
 def parse_function():
-    return parse_typed_function() | parse_untyped_function() * "Failed parsing function"
+    return parse_typed_function() | parse_untyped_function()# * "Failed parsing function"
 
 # |Type|Name param_decl -> code_block
 def parse_typed_function():
-    return ((parse_type()  + parse_func_name()
+    return ((parse_type() + parse_func_name()
             + parse_param_decl() + parse_begin_code_sym()
-            + parse_code_block() ^ process_typed_function) * "Failed parsing typed function"
+            + parse_code_block() ^ process_typed_function)
            )
 
 def process_typed_function(result_tuple):
@@ -40,7 +40,7 @@ def process_typed_function(result_tuple):
 def parse_untyped_function():
     return ((parse_func_name()
             + parse_param_decl() + parse_begin_code_sym()
-            + parse_code_block() ^ process_untyped_function) * "Failed parsing untyped function"
+            + parse_code_block() ^ process_untyped_function)
         )
 
 def process_untyped_function(result_tuple):
@@ -49,7 +49,9 @@ def process_untyped_function(result_tuple):
 
 # A function can either have parameters or it does not
 def parse_param_decl():
-    return (parse_begin_params_sym() + parse_params() ^ process_param_decl
+    return (parse_begin_params_sym()
+            + parse_params()
+            ^ process_param_decl
             | Default(PrmEmpty()) * "Failed parsing parameter declaration"
            )
 
@@ -61,19 +63,11 @@ def process_param_decl(result_tulple):
 # |type var
 # Returns a collection of parameters
 def parse_params():
-    return (((parse_type() + parse_var() ^ process_param)
-            + Repeat(parse_type() + parse_var() ^ process_param)
-            ^ process_params) * ("Failed parsing parameters")
-           )
+    return (Repeat(parse_type() + parse_var() ^ process_param)) * "Failed parsing parameters"
 
 def process_param(result_tulple):
     (type_name, var_name) = result_tulple
     return Parameter(type_name, var_name)
-
-def process_params(result_tulple):
-    (param, list_params) = result_tulple
-    list_all_params = list_params.insert(0, param)
-    return list_params
 
 # Name arg1 arg2 arg3
 def parse_func_call():
@@ -282,7 +276,7 @@ def parse_end_line_sym():
     return Tag(Symbol.Delimiter) * "Failed parsing end line symbol"
 
 def parse_assign_sym():
-    return Tag(Symbol.FunctionOneLine) * "Failed parsing equal sign"
+    return (Tag(Symbol.FunctionOneLine) * "Failed parsing equal sign")
 
 # parses .., but throws away one so that it counts as a single
 # parsed value.

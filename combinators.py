@@ -1,16 +1,20 @@
+from tokens import Special
+
 class Result():
-    def __init__(self, value, error=None):
+    def __init__(self, value, loc=(-1, -1), error=None, errorRank=1):
         self.value = value
         self.error = error
+        self.location = loc
+        self.errorRank = errorRank
 
     def __bool__(self):
-        return bool(self.value)
+        return self.value != None
 
     def __repr__(self):
         return repr(self.value)
 
     def __str__(self):
-        return str(self.value)
+        return str(self.value)+", "+str(self.error)+", "+str(self.location)+", "+str(self.errorRank)
 
 # Basic parser class
 class Parser:
@@ -50,8 +54,8 @@ class Tag(Parser):
     def run(self, token_list):
         if token_list.peek().type == self.token_type:
             tk = token_list.next()
-            return Result(tk.value)
-        return Result(None)
+            return Result(tk.value, tk.loc)
+        return Result(None, token_list.peek().loc)
 
     def __str__(self):
         return "Tag("+str(self.token_type)+")"
@@ -73,7 +77,12 @@ class Alternate(Parser):
             if right_result:
                 return right_result
             else:
-                return right_result # this should probably be changed
+                # print(left_result.errorRank, self.left, "\n|||", right_result.errorRank, self.right, "\n")
+                if right_result.errorRank >= left_result.errorRank:
+                    right_result.errorRank += 1
+                    return right_result
+                left_result.errorRank += 1
+                return left_result
 
     def __str__(self):
         return str(self.left)+" | "+str(self.right)
@@ -91,9 +100,9 @@ class Concatenate(Parser):
         if left_result:
             right_result = self.right.run(token_list)
             if right_result:
-                return Result(self.vals_to_tuple(left_result.value, right_result.value))
-            return right_result
-        return left_result
+                return Result(self.vals_to_tuple(left_result.value, right_result.value), right_result.location, errorRank=right_result.errorRank+left_result.errorRank)
+            return Result(right_result.value, right_result.location, right_result.error, right_result.errorRank+left_result.errorRank)
+        return Result(left_result.value, left_result.location, left_result.error, left_result.errorRank+1)
 
     def vals_to_tuple(self,left,right):
         if type(left) is tuple:
@@ -110,12 +119,20 @@ class Repeat(Parser):
 
     def run(self, token_list):
         results = []
+        pos = token_list.pos
+        count = 0
         result = self.parser.run(token_list)
         while result:
+            count += result.errorRank
             results.append(result)
+            pos = token_list.pos
             result = self.parser.run(token_list)
 
-        return Result(results+[result]) # change this
+        token_list.pos = pos
+        if len(results) == 0:
+            return result
+        r = Result(results, results[-1].location, result.error, count)
+        return r
 
 class Lazy(Parser):
     def __init__(self, parser_func):
@@ -152,12 +169,23 @@ class Error(Parser):
 
     def run(self, token_list):
         result = self.parser.run(token_list)
-        if not result:
-            if result.error:
-                result.error += "\n" + self.message
-            else:
-                result.error = self.message
+        if result.error:
+            result.error += "\n" + self.message
+        else:
+            result.error = self.message
         return result
 
     def __str__(self):
         return str(self.parser)+" * "+self.message
+
+# make sure the entire file is read
+class All(Parser):
+    def __init__(self, parser):
+        self.parser = parser
+
+    def run(self, token_list):
+        result = self.parser.run(token_list)
+        e = Tag(Special.EOF).run(token_list)
+        if e:
+            return result
+        return Result(None, e.location, result.error)

@@ -20,10 +20,17 @@ def main():
 
     #print("\n".join(str(x) for x in tokens))
 
-    result = P.parse(tokens)
+    result = P.parse(tokens, errorHandler)
+
+    if errorHandler:
+        print(errorHandler)
+        return
+
     print("PRETTY PRINT:\n"+"-"*50)
     print(result)
     print("\n\nDETAILED PRINT:\n"+"-"*50)
     print(repr(result))
+
+
 
 main()

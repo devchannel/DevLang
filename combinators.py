@@ -1,6 +1,10 @@
 class Result():
-    def __init__(self, value):
+    def __init__(self, value, error=None):
         self.value = value
+        self.error = error
+
+    def __bool__(self):
+        return bool(self.value)
 
     def __repr__(self):
         return repr(self.value)
@@ -20,7 +24,7 @@ class Parser:
 
     # called by * operator
     def __mul__(self, other):
-        return Exp(self, other)
+        return Error(self, other)
 
     # called by | operator
     def __or__(self, other):
@@ -30,18 +34,6 @@ class Parser:
     def __xor__(self, function):
         return Process(self, function)
 
-"""
-I don't think we need this
-class Reserved(Parser):
-    def __init__(self, token):
-        self.token = token
-
-    def run(self, token_list):
-        t = token_list.peek()
-        if t.value == self.token.value and t.type == self.token.type:
-            return token_list.next()
-        return None
-"""
 
 class Default(Parser):
     def __init__(self, val):
@@ -59,7 +51,7 @@ class Tag(Parser):
         if token_list.peek().type == self.token_type:
             tk = token_list.next()
             return Result(tk.value)
-        return None
+        return Result(None)
 
     def __str__(self):
         return "Tag("+str(self.token_type)+")"
@@ -70,7 +62,7 @@ class Alternate(Parser):
         self.left = left
         self.right = right
 
-    def run(self,token_list):
+    def run(self, token_list):
         pos = token_list.pos
         left_result = self.left.run(token_list)
         if left_result:
@@ -81,7 +73,7 @@ class Alternate(Parser):
             if right_result:
                 return right_result
             else:
-                return None
+                return right_result # this should probably be changed
 
     def __str__(self):
         return str(self.left)+" | "+str(self.right)
@@ -100,7 +92,8 @@ class Concatenate(Parser):
             right_result = self.right.run(token_list)
             if right_result:
                 return Result(self.vals_to_tuple(left_result.value, right_result.value))
-        return None
+            return right_result
+        return left_result
 
     def vals_to_tuple(self,left,right):
         if type(left) is tuple:
@@ -122,7 +115,7 @@ class Repeat(Parser):
             results.append(result)
             result = self.parser.run(token_list)
 
-        return Result(results)
+        return Result(results+[result]) # change this
 
 class Lazy(Parser):
     def __init__(self, parser_func):
@@ -145,7 +138,26 @@ class Process(Parser):
         if result:
             result.value = self.func(result.value)
             return result
-        return None
+        return result
 
     def __str__(self):
         return str(self.parser)+" ^ "+self.func.__name__
+
+
+# figure out how to get location - add to result class?
+class Error(Parser):
+    def __init__(self, parser, errorMessage):
+        self.parser = parser
+        self.message = errorMessage
+
+    def run(self, token_list):
+        result = self.parser.run(token_list)
+        if not result:
+            if result.error:
+                result.error += "\n" + self.message
+            else:
+                result.error = self.message
+        return result
+
+    def __str__(self):
+        return str(self.parser)+" * "+self.message

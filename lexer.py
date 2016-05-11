@@ -178,7 +178,19 @@ class Lexer():
 
     def maybe_operator(self, char):
         for op in Symbol:
-            if char == op.value[0]:
+            pos = self.pos
+            index = 0
+
+            if index >= len(op.value):  # This is not the operator you are looking for
+                continue  # move to the next operator
+
+            # loop through the operator, checking each char
+            while index < len(op.value) and pos < len(self.program) and self.program[pos] == op.value[index]:
+                pos += 1
+                index += 1
+
+            # (len(op.value) - 1) + 1, the length of string, plus the earlier matched portion
+            if index == len(op.value):  # The whole string matched, plus the one we matched earlier
                 return True
         return False
 

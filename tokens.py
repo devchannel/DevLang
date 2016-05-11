@@ -26,6 +26,7 @@ class Symbol(Enum):
     Delimiter = ";"
     Colon = ":"
     Dot = "."
+    Or = "||"
 
 
 class Special(Enum):

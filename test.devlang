@@ -3,9 +3,10 @@
 End
 
 dong -> |3|yo =>
-	|int|a = 4
-	a = 4
+	|int|l = 4
+	l = 4
 	While True =>
-		a = "d"b
+		|sss|beed = 3+3
+		ss = 5+5+5
 	End
 End

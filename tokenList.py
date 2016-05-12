@@ -48,33 +48,5 @@ class TokenList:
         raise Exception("Attempted to look past last token")
 
 
-# The old arithmetic expression parser, needs to be reworked
-
-# # TODO: Operator precedence
-# def parse_AExpr(self):
-#     left = None
-#     tk = self.peek()
-#     if tk.type == Special.OpenBracket: # If we encounter an open bracket
-#         self.next()
-#         expr = self.parse_AExpr()       # The brackets enclose an expression
-#         self.eat(Special.CloseBracket) # It should end with a closing bracket
-#         left = ABrackets(expr)
-#     elif tk.type == Type.Integer: 
-#         left = self.next()
-#         tk = self.peek()
-#         if self.is_operator(tk.type):  # Integer can be part of another expression
-#             self.next()
-#             op = tk.type
-#             right = self.parse_AExpr() # For now we don't care what is on the rhs
-#             left = ABinaryOp(op, AConstant(left.value), right)
-#         else:
-#              left = AConstant(left.value)
-    
-#     tk = self.peek()
-#     if self.is_operator(tk.type):  # left can be part of some outer expression
-#         self.next()
-#         op = tk.type
-#         right = self.parse_AExpr()
-#         return ABinaryOp(op, left, right)
-#     else:
-#         return left
+    def copy(self):
+        return TokenList(self.tokens, self.pos)

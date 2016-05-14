@@ -1,6 +1,7 @@
 import lexer as L
 import parsers as P
 from errorHandler import ErrorHandler
+from type_checker import type_check
 
 
 # Maybe we should change the implementation of Lexer and tokenParser
@@ -26,10 +27,7 @@ def main():
         print(errorHandler)
         return
 
-    print("PRETTY PRINT:\n"+"-"*50)
-    print(result)
-    print("\n\nDETAILED PRINT:\n"+"-"*50)
-    print(repr(result))
+    type_check(result)
 
 
 

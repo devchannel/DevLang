@@ -115,7 +115,10 @@ class Arguments():
 #statements
 
 class Statement():
-    pass
+    # Children will implement this
+    def __hash__(self):
+        return hash(self.__class__.__name__)
+
 
 class DeclStmt(Statement):
     def __init__(self, t, name, expr):
@@ -128,6 +131,7 @@ class DeclStmt(Statement):
 
     def __repr__(self):
         return "DeclStmt("+self.type+", "+self.name+", "+repr(self.expr)+")"
+
 
 class AssignStmt(Statement):
     def __init__(self, name, expr):

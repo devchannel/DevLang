@@ -162,13 +162,14 @@ class Repeat(Parser):
         results = []
         count = 0
         result = self.parser.run(token_list)
+        location = result.location
         while result:
             count += result.errorRank
-            results.append(result)
+            results.append(result.value)
             result = self.parser.run(token_list)
+            location = result.location
 
-        r = Result(results, results[-1].location, result.error, count)
-        return r
+        return Result(results, location, result.error, count)
 
 class RepeatUntil(Parser):
     def __init__(self, parser, endParser):
@@ -180,23 +181,25 @@ class RepeatUntil(Parser):
         pos = token_list.pos
         count = 0
         result = self.parser.run(token_list)
+        location = result.location
         endResult = None
 
         while result:
             count += result.errorRank
-            results.append(result)
+            results.append(result.value)
             pos = token_list.pos
             if self.endParser.run(token_list):
                 break
             result = self.parser.run(token_list)
+            location = result.location
 
         token_list.pos = pos
         endResult = self.endParser.run(token_list)
 
         if not endResult:
-            return Result(None, result.location, result.error, count)
+            return Result(None, location, result.error, count)
 
-        return Result((results, endResult), results[-1].location, result.error, count)
+        return Result((results, endResult), location, result.error, count)
 
 # Takes two parsers: a generic parser and a separator parser.
 # First the generic parser is run, then similarly to repeat
@@ -277,15 +280,3 @@ class Error(Parser):
 
     def __str__(self):
         return str(self.parser)+" * "+self.message
-
-# make sure the entire file is read
-class All(Parser):
-    def __init__(self, parser):
-        self.parser = parser
-
-    def run(self, token_list):
-        result = self.parser.run(token_list)
-        e = Tag(Special.EOF).run(token_list)
-        if e:
-            return result
-        return Result(None, e.location, result.error)

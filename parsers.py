@@ -37,7 +37,8 @@ def parse_typed_function():
 
 def process_typed_function(result_tuple):
     (func_name, type_name, params, _, codeblock) = result_tuple
-    return FTyped(func_name, type_name, params, codeblock)
+    (code, _) = codeblock
+    return FTyped(func_name, type_name, params, code)
 
 # Name param_decl -> code_block
 def parse_untyped_function():
@@ -49,7 +50,8 @@ def parse_untyped_function():
 
 def process_untyped_function(result_tuple):
     (func_name, params, _, codeblock) = result_tuple
-    return FUntyped(func_name, params, codeblock)
+    (code, _) = codeblock
+    return FUntyped(func_name, params, code)
 
 # A function can either have parameters or it does not
 def parse_param_decl():
@@ -141,7 +143,9 @@ def parse_if_stmt():
 
 def process_if_stmt(result_tuple):
     (_, cond, _, block1, _, block2) = result_tuple
-    return IfStmt(cond, block1, block2)
+    (code1, _) = block1
+    (code2, _) = block2
+    return IfStmt(cond, code1, code2)
 
 # Return expr
 def parse_return_stmt():
@@ -177,11 +181,8 @@ def parse_cases():
 
 def process_case(result_tuple):
     (expr, sym, block) = result_tuple
-    print("PRINTING CASE")
-    print(repr(expr))
-    print(repr(sym))
-    print(repr(block))
-    return Case(expr, block)
+    (code, _) = block
+    return Case(expr, code)
 
 # While expr => code_block
 def parse_while_stmt():
@@ -193,7 +194,8 @@ def parse_while_stmt():
 
 def process_while_stmt(result_tuple):
     (_, cond, _, block) = result_tuple
-    return WhileStmt(cond, block)
+    (code, _) = block
+    return WhileStmt(cond, code)
 
 # For Var in Num..Num => code_block
 def parse_for_stmt():
@@ -207,7 +209,8 @@ def parse_for_stmt():
 
 def process_for_stmt(result_tuple):
     (_, var_name, _, low, _, high, _, block) = result_tuple
-    return ForStmt(var_name, low, high, block)
+    (code, _) = block
+    return ForStmt(var_name, low, high, code)
 
 # An expression can be an arithmic expression,
 # boolean expression or a function call of which the type

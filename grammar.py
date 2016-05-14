@@ -124,7 +124,7 @@ class DeclStmt(Statement):
         self.expr = expr
 
     def __str__(self):
-        return "Declare "+self.type+"("+self.type+") = "+str(self.expr)
+        return "Declare "+self.name+"("+self.type+") = "+str(self.expr)
 
     def __repr__(self):
         return "DeclStmt("+self.type+", "+self.name+", "+repr(self.expr)+")"

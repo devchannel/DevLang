@@ -227,11 +227,21 @@ class Case():
 class Expr():
     pass
 
+class String(Expr):
+    def __init__(self, val):
+        self.val = val
+
+    def __str__(self):
+        return repr(self.val)
+
+    def __repr__(self):
+        return "String("+repr(self.val)+")"
+
 #  Arithmetic Expressions
 class AExpr(Expr):
     pass
 
-class AConstant(AExpr):
+class AInt(AExpr):
     def __init__(self, val):
         self.val = val
 
@@ -239,7 +249,17 @@ class AConstant(AExpr):
         return str(self.val)
 
     def __repr__(self):
-        return "AConstant("+repr(self.val)+")"
+        return "AInt("+repr(self.val)+")"
+
+class AFloat(AExpr):
+    def __init__(self, val):
+        self.val = val
+
+    def __str__(self):
+        return str(self.val)
+
+    def __repr__(self):
+        return "AFloat("+repr(self.val)+")"
 
 
 class AVar(AExpr):

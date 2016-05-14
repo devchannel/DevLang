@@ -216,7 +216,10 @@ def process_for_stmt(result_tuple):
 # boolean expression or a function call of which the type
 # at parsing is unknown
 def parse_expr():
-    return (parse_aexpr() | parse_bexpr() | parse_func_call()) * "Failed parsing expression"
+    return (parse_aexpr() | parse_bexpr() | parse_func_call() | parse_string()) * "Failed parsing expression"
+
+def parse_string():
+    return Tag(Type.String) ^ String
 
 def parse_term_aexpr():
     return (
@@ -228,7 +231,7 @@ def parse_term_aexpr():
 
 
 def parse_constant_aexpr():
-    return (Tag(Type.Integer32) ^ AConstant)# * "Failed parsing constant integer"
+    return (Tag(Type.Integer32) ^ AInt) | (Tag(Type.Float) ^ AFloat)# * "Failed parsing constant integer"
 
 def parse_var_aexpr():
     return (parse_var() ^ AVar)# * "Failed parsing variable"

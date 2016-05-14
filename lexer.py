@@ -40,7 +40,7 @@ class Lexer():
             return self.lex_op()
 
         if cur_char.isdigit():
-            return self.lex_int()
+            return self.lex_num()
 
         if cur_char in string.ascii_letters + "_":
             return self.lex_name()
@@ -91,18 +91,27 @@ class Lexer():
         return Token(Special.Unknown, None, loc)
 
 
-    def lex_int(self):
+    def lex_num(self):
         cur_char = self.program[self.pos]
         loc = self.loc
         integer = ""
+        float = False
 
         # loop while there is still an integer left
-        while self.pos < len(self.program) and self.program[self.pos].isdigit():
-            integer += cur_char
+        while self.pos < len(self.program):
+            if not (self.program[self.pos].isdigit() or (self.program[self.pos] == '.' and not float)):
+                break
+            if self.program[self.pos] == '.':
+                if not float:
+                    float = True
+            integer += self.program[self.pos]
             self.pos += 1
             self.loc = Loc.nextColumn(self.loc)
 
-        return Token(Type.Integer32, integer, loc)
+        if float:
+            return Token(Type.Float, integer, loc)
+        else:
+            return Token(Type.Integer32, integer, loc)
 
     def lex_char(self):
 

@@ -1,11 +1,11 @@
 |int32|main -> |float|x |string|y =>
-	|int|a = 5
+	|int|a = "hi there"
 End
 
 dong -> |int32|yo =>
-	|int32|l = 4
+	|int32|l = 44522.324
 	While True =>
 		|int32|b = 3+3
-		ss = 5+5+5
+		ss = 5.42+5+5.54324
 	End
 End

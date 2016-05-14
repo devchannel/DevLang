@@ -1,3 +1,5 @@
+from tokens import Special
+
 """
 This file contains several parser combinators.
 A parser combinator takes one or more parsers
@@ -7,14 +9,36 @@ in a specific way dependent on the parser combinator.
 
 # The object that will contain the result of the parsing
 class Result():
-    def __init__(self, value):
+    def __init__(self, value, loc=(-1, -1), error="", errorRank=1):
         self.value = value
+        self.error = error
+        self.location = loc
+        self.errorRank = errorRank
+
+    def __bool__(self):
+        return self.value != None
 
     def __repr__(self):
         return "Result("+repr(self.value)+")"
 
     def __str__(self):
         return str(self.value)
+
+    def __lt__(self, other):
+        # if self.location[0] < other.location[0]:
+        #     return True
+        # elif self.location[0] == other.location[0] and self.location[1] < other.location[1]:
+        #     return True
+        # return False
+        return self.errorRank < other.errorRank
+
+    def __gt__(self, other):
+        # if self.location[0] > other.location[0]:
+        #     return True
+        # elif self.location[0] == other.location[0] and self.location[1] > other.location[1]:
+        #     return True
+        # return False
+        return self.errorRank > other.errorRank
 
 # Basic parser class
 class Parser:
@@ -29,7 +53,7 @@ class Parser:
 
     # called by * operator
     def __mul__(self, other):
-        return Exp(self, other)
+        return Error(self, other)
 
     # called by | operator
     def __or__(self, other):
@@ -57,8 +81,8 @@ class Tag(Parser):
     def run(self, token_list):
         if token_list.peek().type == self.token_type:
             tk = token_list.next()
-            return Result(tk.value)
-        return None
+            return Result(tk.value, tk.loc)
+        return Result(None, token_list.peek().loc)
 
     def __str__(self):
         return "Tag("+str(self.token_type)+")"
@@ -72,7 +96,7 @@ class Alternate(Parser):
         self.left = left
         self.right = right
 
-    def run(self,token_list):
+    def run(self, token_list):
         pos = token_list.pos
         left_result = self.left.run(token_list)
         if left_result:
@@ -83,7 +107,17 @@ class Alternate(Parser):
             if right_result:
                 return right_result
             else:
-                return None
+                # print(left_result.errorRank, self.left, "\n|||", right_result.errorRank, self.right, "\n")
+                # if right_result.errorRank > left_result.errorRank:
+                #     return right_result
+                e = ""
+                if left_result.error and right_result.error:
+                    e = left_result.error+" or "+right_result.error
+                elif left_result.error:
+                    e = left_result.error
+                elif right_result.error:
+                    e = right_result.error
+                return Result(None, right_result.location, e, right_result.errorRank)
 
     def __str__(self):
         return str(self.left)+" | "+str(self.right)
@@ -98,12 +132,13 @@ class Concatenate(Parser):
 
     def run(self, token_list):
         left_result = self.left.run(token_list)
-        print(repr(left_result))
+
         if left_result:
             right_result = self.right.run(token_list)
             if right_result:
-                return Result(self.vals_to_tuple(left_result.value, right_result.value))
-        return None
+                return Result(self.vals_to_tuple(left_result.value, right_result.value), errorRank=left_result.errorRank+right_result.errorRank)
+            return Result(right_result.value, right_result.location, right_result.error, right_result.errorRank)
+        return left_result
 
     # Function that prevents nesting of tuples
     # result of the right parser if appended to that 
@@ -124,16 +159,44 @@ class Repeat(Parser):
         self.parser = parser
 
     def run(self, token_list):
-        print("TOKENLIST")
-        print(token_list.pos)
-        print(str(token_list))
         results = []
+        count = 0
         result = self.parser.run(token_list)
         while result:
-            results.append(result.value)
+            count += result.errorRank
+            results.append(result)
             result = self.parser.run(token_list)
 
-        return Result(results)
+        r = Result(results, results[-1].location, result.error, count)
+        return r
+
+class RepeatUntil(Parser):
+    def __init__(self, parser, endParser):
+        self.parser = parser
+        self.endParser = endParser
+
+    def run(self, token_list):
+        results = []
+        pos = token_list.pos
+        count = 0
+        result = self.parser.run(token_list)
+        endResult = None
+
+        while result:
+            count += result.errorRank
+            results.append(result)
+            pos = token_list.pos
+            if self.endParser.run(token_list):
+                break
+            result = self.parser.run(token_list)
+
+        token_list.pos = pos
+        endResult = self.endParser.run(token_list)
+
+        if not endResult:
+            return Result(None, result.location, result.error, count)
+
+        return Result((results, endResult), results[-1].location, result.error, count)
 
 # Takes two parsers: a generic parser and a separator parser.
 # First the generic parser is run, then similarly to repeat
@@ -155,7 +218,6 @@ class ChainL(Parser):
         if result == None:
             return None
 
-        print("before: " + repr(result))
         results = (result.value,[])
 
         next_result = result
@@ -166,7 +228,6 @@ class ChainL(Parser):
                 result = next_result.value
                 results[1].append(result)
 
-        print("after: " + repr(results))
         return Result(results)
 
         
@@ -194,7 +255,37 @@ class Process(Parser):
         if result:
             result.value = self.func(result.value)
             return result
-        return None
+        return result
 
     def __str__(self):
         return str(self.parser)+" ^ "+self.func.__name__
+
+
+# figure out how to get location - add to result class?
+class Error(Parser):
+    def __init__(self, parser, errorMessage):
+        self.parser = parser
+        self.message = errorMessage
+
+    def run(self, token_list):
+        result = self.parser.run(token_list)
+        if result.error:
+            result.error = self.message + "\n" + result.error
+        else:
+            result.error = self.message
+        return result
+
+    def __str__(self):
+        return str(self.parser)+" * "+self.message
+
+# make sure the entire file is read
+class All(Parser):
+    def __init__(self, parser):
+        self.parser = parser
+
+    def run(self, token_list):
+        result = self.parser.run(token_list)
+        e = Tag(Special.EOF).run(token_list)
+        if e:
+            return result
+        return Result(None, e.location, result.error)

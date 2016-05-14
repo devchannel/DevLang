@@ -1,15 +1,11 @@
-|int32|main -> |float|x =>
-    |int|a = 2 * 4 + 9 / 2
-    Case a =>
-        0 => Return 5
-             Return 7 End
-    Return 6
+|int32|main -> |float|x |string|y =>
+	|int|a = 5
 End
 
-dong -> |float|x |string|y =>
-    |int|a = 4
-    a = 4 + 9
-    While a != 5 && a > 1 || a == 9 =>
-        a = 5
-    End
+dong -> |int32|yo =>
+	|int32|l = 4
+	While True =>
+		|int32|b = 3+3
+		ss = 5+5+5
+	End
 End

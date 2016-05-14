@@ -182,7 +182,7 @@ def parse_for_stmt():
 
 def process_for_stmt(result_tuple):
     (_, var_name, _, low, _, high, _, block) = result_tuple
-    return ForSttm(var_name, low, high, block)
+    return ForStmt(var_name, low, high, block)
 
 # An expression can be an arithmic expression,
 # boolean expression or a function call of which the type

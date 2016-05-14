@@ -12,34 +12,6 @@ def parse(tokens):
     result = parse_program().run(token_list)
     return result
 
-def parse_test(tokens):
-    token_list = TokenList(tokens)
-    result = parse_test4().run(token_list)
-    return result
-
-def parse_test2():
-    return ChainL(parse_term_aexpr(), Tag(Symbol.Multiply) | Tag(Symbol.Divide)) ^ chainAdd
-
-def chainAdd(result_tuple):
-    (term, tuples) = result_tuple
-    print(result_tuple)
-    if len(tuples) > 1:
-        (op, expr) = tuples[0]
-        chain = chainAdd((ABinaryOp(term, op, expr), tuples[1:]))
-        print(chain)
-        return chain
-    elif len(tuples) == 1:
-        (op, expr) = tuples[0]
-        return ABinaryOp(term, op, expr)
-    else:
-        return term
-
-def parse_test3():
-    return ChainL(parse_test2(), Tag(Symbol.Add)) ^ chainAdd
-
-def parse_test4():
-    return ChainL(parse_test3(), Tag(Symbol.Subtract)) ^ chainAdd
-
 # program is a collection of functions
 def parse_program():
     return Repeat(parse_function()) ^ process_program
@@ -136,7 +108,7 @@ def parse_stmt():
             | parse_return_stmt()
             | parse_decl_stmt()
             | parse_assign_stmt()
-            # | parse_case_stmt()
+            | parse_case_stmt()
             | parse_while_stmt()
             | parse_for_stmt()
            )
@@ -184,7 +156,7 @@ def process_if_stmt(result_tuple):
 
 # Return expr
 def parse_return_stmt():
-    return parse_return_key() + parse_expr ^ process_return_stmt
+    return parse_return_key() + parse_expr() ^ process_return_stmt
 
 def process_return_stmt(result_tuple):
     (_, expr) = result_tuple
@@ -193,17 +165,34 @@ def process_return_stmt(result_tuple):
 # Case expr =>
 #  cases
 
-# PARSE_CASES() IS UNDEFINED!!!
-# def parse_case_stmt():
-#     (
-#     parse_case_key() + parse_expr() +
-#     parse_begin_code_sym() + parse_cases() ^
-#     process_case_stmt
-#     )
+def parse_case_stmt():
+    return (
+        parse_case_key() + parse_expr() +
+        parse_begin_code_sym() + parse_cases() ^
+        process_case_stmt
+    )
 
 def process_case_stmt(result_tuple):
-    (_, expr, _, cases)
+    (_, expr, _, cases) = result_tuple
     return CaseStmt(expr, cases)
+
+# expr1 => code_block1
+# expr2 => code_block2
+def parse_cases():
+    return (
+        Repeat(
+            parse_expr() + parse_begin_code_sym() +
+            parse_code_block() ^ process_case
+            )
+        )
+
+def process_case(result_tuple):
+    (expr, sym, block) = result_tuple
+    print("PRINTING CASE")
+    print(repr(expr))
+    print(repr(sym))
+    print(repr(block))
+    return Case(expr, block)
 
 # While expr => code_block
 def parse_while_stmt():

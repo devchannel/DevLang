@@ -203,34 +203,25 @@ class ReturnStmt(Statement):
         self.expr = expr
 
     def __str__(self):
-        return "Return "+self.expr
+        return "Return "+ str(self.expr)
 
     def __repr__(self):
         return "ReturnStmt("+repr(self.expr)+")"
 
 # Different cases of a case stmt
 
-class Cases():
-    pass
-
-class Case(Cases):
-    def __init__(self, expr, block, cases):
+class Case():
+    def __init__(self, expr, block):
         self.expr = expr
         self.block = block
-        self.cases = cases
 
     def __str__(self):
         out =  "Case "+str(self.expr)+":\n"
         out += indentString(str(self.block))+"\n"
-        out += str(self.cases)
         return out
 
     def __repr__(self):
-        return "Case("+repr(self.expr)+", "+repr(self.block)+", "+repr(self.cases)+")"
-
-class CaseEmpty(Cases):
-    def __repr__(self):
-        return "CaseEmpty"
+        return "Case("+repr(self.expr)+", "+repr(self.block)+")"
 
 #  Expressions
 class Expr():

@@ -1,3 +1,11 @@
+"""
+This file contains several parser combinators.
+A parser combinator takes one or more parsers
+and applies the parsers to the given token_list
+in a specific way dependent on the parser combinator.
+"""
+
+# The object that will contain the result of the parsing
 class Result():
     def __init__(self, value):
         self.value = value
@@ -10,7 +18,8 @@ class Result():
 
 # Basic parser class
 class Parser:
-    # Will be overridden by subclasses
+    # This is the function that will actually run the parsing
+    # It will be overridden by the parser combinator classes
     def run(self, token_list):
         return None
 
@@ -30,19 +39,7 @@ class Parser:
     def __xor__(self, function):
         return Process(self, function)
 
-"""
-I don't think we need this
-class Reserved(Parser):
-    def __init__(self, token):
-        self.token = token
-
-    def run(self, token_list):
-        t = token_list.peek()
-        if t.value == self.token.value and t.type == self.token.type:
-            return token_list.next()
-        return None
-"""
-
+# Sometimes we just need to pack in a value in a Result object
 class Default(Parser):
     def __init__(self, val):
         self.val = val
@@ -50,7 +47,9 @@ class Default(Parser):
     def run(self, token_list):
         return Result(self.val)
 
-
+# Parses a single token from the token list
+# If it fails the function returns None, otherwise
+# the value of the token is inserted into a result object
 class Tag(Parser):
     def __init__(self, token_type):
         self.token_type = token_type
@@ -64,7 +63,10 @@ class Tag(Parser):
     def __str__(self):
         return "Tag("+str(self.token_type)+")"
 
-
+# A parser combinator that takes two parsers.
+# It runs the first parser and if it succeeds it returns the result
+# If it fails, the second parser is run. If also the second parser fails
+# then None is returned
 class Alternate(Parser):
     def __init__(self, left, right):
         self.left = left
@@ -103,6 +105,9 @@ class Concatenate(Parser):
                 return Result(self.vals_to_tuple(left_result.value, right_result.value))
         return None
 
+    # Function that prevents nesting of tuples
+    # result of the right parser if appended to that 
+    # of the left parser
     def vals_to_tuple(self,left,right):
         if type(left) is tuple:
             return left + (right,)
@@ -112,19 +117,32 @@ class Concatenate(Parser):
     def __str__(self):
         return str(self.left)+" + "+str(self.right)
 
+# Run a parser until it fails and collect the results
+# in a list.
 class Repeat(Parser):
     def __init__(self, parser):
         self.parser = parser
 
     def run(self, token_list):
+        print("TOKENLIST")
+        print(token_list.pos)
+        print(str(token_list))
         results = []
         result = self.parser.run(token_list)
         while result:
-            results.append(result)
+            results.append(result.value)
             result = self.parser.run(token_list)
 
         return Result(results)
 
+# Takes two parsers: a generic parser and a separator parser.
+# First the generic parser is run, then similarly to repeat
+# the separator parser followed by the generic parser is run
+# until either of them fails. The result of the repeating is stored
+# as tuples in a list. The first element is the result of the separator
+# parser and the second element the result of the generic parser.
+# the list is stored in a tuple together with the initial parsing result
+# of the generic parser.
 class ChainL(Parser):
     def __init__(self, parser, separator):
         self.parser = parser
@@ -132,6 +150,10 @@ class ChainL(Parser):
 
     def run(self, token_list):
         result = self.parser.run(token_list)
+
+        # If the generic parser cannot parse, then we can just return None
+        if result == None:
+            return None
 
         print("before: " + repr(result))
         results = (result.value,[])
@@ -148,7 +170,9 @@ class ChainL(Parser):
         return Result(results)
 
         
-
+# Parser combinator that receives a parser in the form of a
+# function. It only becomes a parser when the the combinator
+# is run.
 class Lazy(Parser):
     def __init__(self, parser_func):
         self.parser = None
@@ -159,7 +183,7 @@ class Lazy(Parser):
             self.parser = self.parser_func()
         return self.parser.run(token_list)
 
-
+# Does some parsing and applies a function to the result of the parser
 class Process(Parser):
     def __init__(self, parser, func):
         self.parser = parser

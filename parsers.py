@@ -137,8 +137,9 @@ def process_assign_stmt(result_tuple):
 def parse_if_stmt():
     return ( 
         parse_if_key() + parse_bexpr() + 
+        parse_begin_code_sym() + parse_code_block() +
         parse_begin_code_sym() + parse_code_block() ^
-        process_if_stmt # * "Failed parsing if statement"
+        process_if_stmt 
         )
 
 def process_if_stmt(result_tuple):

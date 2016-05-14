@@ -135,17 +135,31 @@ def process_assign_stmt(result_tuple):
 # =>
 #    code_block
 def parse_if_stmt():
-    return ( 
-        parse_if_key() + parse_bexpr() + 
-        parse_begin_code_sym() + parse_code_block() ^
-        process_if_stmt # * "Failed parsing if statement"
-        )
+    return (parse_if_key()
+            + parse_bexpr()
+            + parse_begin_code_sym()
+            + parse_code_block()
+            + (parse_else_stmt() | Default(ElseStmt([])))
+            ^ process_if_stmt
+           )
 
 def process_if_stmt(result_tuple):
-    (_, cond, _, block1, _, block2) = result_tuple
+    (_, cond, _, block1, els) = result_tuple
     (code1, _) = block1
-    (code2, _) = block2
-    return IfStmt(cond, code1, code2)
+    return IfStmt(cond, code1, els)
+
+def parse_else_stmt():
+    return (parse_else_key()
+            + parse_begin_code_sym()
+            + parse_code_block()
+            ^ process_else_stmt
+           )
+
+def process_else_stmt(result_tuple):
+    (_, _, block) = result_tuple
+    (code, _) = block
+    return ElseStmt(code)
+
 
 # Return expr
 def parse_return_stmt():
@@ -367,6 +381,9 @@ def parse_type():
 
 def parse_if_key():
     return Tag(Symbol.If)# * "Failed parsing if keyword"
+
+def parse_else_key():
+    return Tag(Symbol.Else)# * "Failed parsing if keyword"
 
 def parse_end_key():
     return Tag(Symbol.End)# * "Failed parsing end keyword"

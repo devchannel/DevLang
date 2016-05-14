@@ -140,22 +140,39 @@ class AssignStmt(Statement):
     def __repr__(self):
         return "AssignStmt("+self.name+", "+repr(self.expr)+")"
 
-# What are block 1 and 2? I will assume Else
 class IfStmt(Statement):
-    def __init__(self, cond, block1, block2):
+    def __init__(self, cond, block1, els):
         self.cond = cond
-        self.b1 = b1
-        self.b2 = b2
+        self.block = block1
+        self.els = els
 
     def __str__(self):
         out = "If "+str(self.cond)+" then\n"
-        out += indentString("\n".join(str(i) for i in self.b1))+"\n"
-        out += "Else\n"
-        out += indentString("\n".join(str(i) for i in self.b2))
+        out += indentString("\n".join(str(i) for i in self.block))+"\n"
+        if self.els:
+            out += str(self.els)
         return out
 
     def __repr__(self):
-        return "IfStmt("+repr(self.cond)+", "+repr(self.b1)+", "+repr(self.b2)+")"
+        if self.els:
+            return "IfStmt("+repr(self.cond)+", "+repr(self.block)+", "+repr(self.els)+")"
+        return "IfStmt("+repr(self.cond)+", "+repr(self.block)+")"
+
+
+class ElseStmt(Statement):
+    def __init__(self, block):
+        self.block = block
+
+    def __str__(self):
+        out = "Else\n"
+        out += indentString("\n".join(str(i) for i in self.block))
+        return out
+
+    def __repr__(self):
+        return "Else("+repr(self.block)+")"
+
+    def __bool__(self):
+        return len(self.block) != 0
 
 class ForStmt(Statement):
     def __init__(self, name, low, high, block):

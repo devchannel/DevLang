@@ -7,11 +7,24 @@ def type_check(ast):
         for item in function.body:
             #print(item)
             #print(type(item))
-            if isinstance(item, DeclStmt):
+            if isinstance(item, Statement):
                 # We are now certain that this is a declaration
-                #TODO: Use our Enums to make this simpler
-                if item.type == 'int32' or item.type == 'int64' or item.type == 'int':
-                    if not (isinstance(item.expr, AInt) or isinstance(item.expr, AFloat)):
-                        #TODO: use the Error handler to handle this
-                        raise Exception("This is not an Integer, " + str(item.expr))
+                stmt = type(item)
+                if stmt in checks:
+                    checks[stmt](item)
 
+def decl_type_check(stmt):
+    if stmt.type in ['int32', 'int64', 'int']:
+        if not isinstance(stmt.expr, AExpr):
+            #TODO: Use the Error Handler to properly handle this
+            raise Exception(str(stmt.expr) + ", Is not an Integer Expression!")  
+
+def if_type_check(stmt):
+    if not isinstance(stmt.cond, BExpr):
+        #TODO: Use the Error Handler to properly handle this
+        raise Exception(str(stmt.cond) + ", Is not a Boolean Expression!")
+
+checks = {
+    DeclStmt    :   decl_type_check,
+    IfStmt      :   if_type_check  
+}

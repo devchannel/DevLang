@@ -1,4 +1,4 @@
-from grammar import *
+from .grammar import *
 
 def type_check(ast):
     program = ast.value

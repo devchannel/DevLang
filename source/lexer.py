@@ -1,5 +1,5 @@
-import locUtils as Loc
-from tokens import *
+import source.locUtils as Loc
+from .tokens import *
 import string
 
 # TODO: comments

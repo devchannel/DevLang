@@ -1,4 +1,4 @@
-from tokens import Special
+from .tokens import Special
 
 """
 This file contains several parser combinators.

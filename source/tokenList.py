@@ -1,5 +1,5 @@
-from tokens import *
-from grammar import *
+from .tokens import *
+from .grammar import *
 
 
 # Stores a list of tokens and the position in the list

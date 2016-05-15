@@ -1,5 +1,5 @@
-from combinators import *
-from tokenList import *
+from .combinators import *
+from .tokenList import *
 
 # TODO: define parse_cases()
 

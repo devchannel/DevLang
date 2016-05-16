@@ -1,4 +1,4 @@
-import source.locUtils as Loc
+import DevLang.locUtils as Loc
 from .tokens import *
 import string
 

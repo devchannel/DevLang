@@ -1,3 +1,3 @@
-from source.program import compile
+import DevLang as Dev
 
-compile("./source/test.devlang")
+Dev.compile("./DevLang/test.devlang")

@@ -39,10 +39,20 @@ class Lexer():
         if self.maybe_operator(cur_char):
             return self.lex_op()
 
+        if self.program[self.pos:self.pos+4] == "True":
+            self.pos += 4
+            self.loc = Loc.moveColumnBy(self.loc, 4)
+            return Token(Type.Bool, True, self.loc)
+
+        if self.program[self.pos:self.pos+5] == "False":
+            self.pos += 5
+            self.loc = Loc.moveColumnBy(self.loc, 5)
+            return Token(Type.Bool, False, self.loc)
+
         if cur_char.isdigit():
             return self.lex_num()
 
-        if cur_char in string.ascii_letters + "_":
+        if cur_char in string.ascii_letters:
             return self.lex_name()
 
         if cur_char == "'":
@@ -64,7 +74,7 @@ class Lexer():
     def lex_name(self):
         loc = self.loc
         name = ""
-        while self.pos < len(self.program) and self.program[self.pos] in string.ascii_letters+"_"+string.digits:
+        while self.pos < len(self.program) and self.program[self.pos] in string.ascii_letters+string.digits:
             name += self.program[self.pos]
             self.pos += 1
             self.loc = Loc.nextColumn(self.loc)

@@ -19,7 +19,7 @@ def main():
         print(errorHandler)
         return
 
-    #print("\n".join(str(x) for x in tokens))
+    print("\n".join(str(x) for x in tokens))
 
     result = P.parse(tokens, errorHandler)
 

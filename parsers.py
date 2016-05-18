@@ -301,7 +301,7 @@ def parse_term_bexpr():
         )
 
 def parse_constant_bexpr():
-    return ((Tag(Symbol.TrueVal) | Tag(Symbol.FalseVal)) ^ BConstant) #* "Failed parsing boolean constant"
+    return ((Tag(Type.Bool)) ^ BConstant) #* "Failed parsing boolean constant"
 
 def parse_var_bexpr():
     return (parse_var() ^ BVar) #* "Failed parsing boolean variable"

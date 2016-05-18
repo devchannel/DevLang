@@ -26,8 +26,6 @@ class Symbol(Enum):
     While = "While"
     In = "in"
     Case = "Case"
-    TrueVal = "True"
-    FalseVal = "False"
     OpenBracket = "("
     CloseBracket = ")"
     OpenBrace = "{"

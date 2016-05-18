@@ -424,4 +424,4 @@ def parse_close_bracket_sym():
 # parses .., but throws away one so that it counts as a single
 # parsed value.
 def parse_range_sym():
-    return (Tag(Symbol.Dot) + Tag(Symbol.Dot) ^ (lambda two_tuple: two_tuple[0]))# * "Failed parsing range symbol"
+    return Tag(Symbol.Range) # * "Failed parsing range symbol"

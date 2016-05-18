@@ -26,15 +26,15 @@ class Symbol(Enum):
     While = "While"
     In = "in"
     Case = "Case"
-    TrueVal = "True"
-    FalseVal = "False"
+    #TrueVal = "True"
+    #FalseVal = "False"
     OpenBracket = "("
     CloseBracket = ")"
     OpenBrace = "{"
     CloseBrace = "}"
     Delimiter = ";"
     Colon = ":"
-    Dot = "."
+    Range = ".."
 
 
 class Special(Enum):

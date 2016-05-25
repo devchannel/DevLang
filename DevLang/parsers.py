@@ -249,8 +249,7 @@ def parse_term_aexpr():
 
 
 def parse_constant_aexpr():
-    return (Tag(Type.Integer32) ^ AInt) | 
-    (Tag(Type.Float) ^ AFloat)# * "Failed parsing constant integer"
+    return (Tag(Type.Integer32) ^ AInt) | (Tag(Type.Float) ^ AFloat)# * "Failed parsing constant integer"
 
 
 def parse_var_aexpr():

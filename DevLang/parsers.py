@@ -3,7 +3,7 @@ from .tokenList import *
 
 # TODO: define parse_cases()
 
-# Create a TokenList datastructure which is used by the 
+# Create a TokenList datastructure which is used by the
 # parser combinators for parsing.
 # Calculate a parser that given a token list returns a result
 # Run the parser and return the result
@@ -118,17 +118,20 @@ def process_decl_stmt(result_tuple):
     (type_name, var_name, _, expr) = result_tuple
     return DeclStmt(type_name, var_name, expr)
 
+
 # Typeless assignment. The var should already exist
 # Var = expr
 def parse_assign_stmt():
     return (
         parse_var() + parse_assign_sym() +
         parse_expr() ^ process_assign_stmt # * "Failed parsing assignment"
-           )
+    )
+
 
 def process_assign_stmt(result_tuple):
     (var_name, _, expr) = result_tuple
     return AssignStmt(var_name, expr)
+
 
 # If bexpr =>
 #    code_block
@@ -142,6 +145,7 @@ def parse_if_stmt():
             + (parse_else_stmt() | Default(ElseStmt([])))
             ^ process_if_stmt
            )
+
 
 def process_if_stmt(result_tuple):
     (_, cond, _, block1, els) = result_tuple
@@ -245,17 +249,23 @@ def parse_term_aexpr():
 
 
 def parse_constant_aexpr():
-    return (Tag(Type.Integer32) ^ AInt) | (Tag(Type.Float) ^ AFloat)# * "Failed parsing constant integer"
+    return (Tag(Type.Integer32) ^ AInt) | 
+    (Tag(Type.Float) ^ AFloat)# * "Failed parsing constant integer"
+
 
 def parse_var_aexpr():
     return (parse_var() ^ AVar)# * "Failed parsing variable"
 
+
 def parse_func_call_aexpr():
-    return (parse_func_name() + parse_args() ^ process_func_call_aexpr)# * "Failed parsing function call"
+    return (
+    parse_func_name() + parse_args() ^ process_func_call_aexpr)# * "Failed parsing function call"
+
 
 def process_func_call_aexpr(result_tuple):
     (func_name, args) = result_tuple
     return AFuncCall(func_name, args)
+
 
 def parse_brackets_aexpr():
     return (
@@ -265,6 +275,7 @@ def parse_brackets_aexpr():
         )
             #* "Failed parsing boolean expression"
 
+
 def process_brackets_aexpr(result_tuple):
     (_, aexpr, _) = result_tuple
     return ABrackets(aexpr)
@@ -273,17 +284,22 @@ def process_brackets_aexpr(result_tuple):
 def parse_aexpr():
     return parse_level3_aexpr()
 
+
 def chain_aexpr(tuple_list):
     return chain(tuple_list, ABinaryOp)
+
 
 def parse_level3_aexpr():
     return ChainL(parse_level2_aexpr(), parse_level3_ops()) ^ chain_aexpr
 
+
 def parse_level3_ops():
     return Tag(Symbol.Add) | Tag(Symbol.Subtract)
 
+
 def parse_level2_aexpr():
     return ChainL(parse_term_aexpr(), parse_level2_ops()) ^ chain_aexpr
+
 
 def parse_level2_ops():
     return Tag(Symbol.Multiply) | Tag(Symbol.Divide)
@@ -292,13 +308,13 @@ def parse_level2_ops():
 def parse_term_bexpr():
     return (
         parse_constant_bexpr()
-    |
+        |
         parse_aexpr() + parse_rel_op() + parse_aexpr() ^ process_rel_bexpr
-    |
+        |
         parse_brackets_bexpr()
-    |
+        |
         Tag(Symbol.Not) + Lazy(parse_bexpr) ^ process_not_bexpr
-        )
+    )
 
 def parse_constant_bexpr():
     return ((Tag(Symbol.TrueVal) | Tag(Symbol.FalseVal)) ^ BConstant) #* "Failed parsing boolean constant"

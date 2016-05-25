@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 # not sure what I should have called this
 class Symbol(Enum):
     Add = '+'

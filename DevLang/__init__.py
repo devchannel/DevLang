@@ -14,10 +14,9 @@ def compile(path):
     lexer = Lexer(x, errorHandler)
     tokens = lexer.tokenize()
 
-    # if there is any errors, print them and exit
+    # if there is any errors, print them
     if errorHandler:
         print(errorHandler)
-        return
 
     #print("\n".join(str(x) for x in tokens))
 
@@ -25,6 +24,5 @@ def compile(path):
 
     if errorHandler:
         print(errorHandler)
-        return
 
     type_check(result)

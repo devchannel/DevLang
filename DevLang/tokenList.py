@@ -9,7 +9,7 @@ class TokenList:
         self.tokens = tokens
         self.pos = pos
 
-    def  __repr__(self):
+    def __repr__(self):
         return str(self.tokens[self.pos:])
 
     def __str__(self):
@@ -24,8 +24,8 @@ class TokenList:
     # Move forward and return current token
     def next(self):
         self.pos += 1
-        if self.pos-1 < len(self.tokens):
-            return self.tokens[self.pos-1]
+        if self.pos - 1 < len(self.tokens):
+            return self.tokens[self.pos - 1]
         raise Exception("Attempted to move past last token")
 
     # return next token and move forward if it matches the given type
@@ -43,10 +43,9 @@ class TokenList:
 
     # Ruturns a list of the next n tokens
     def peek_many(self, n):
-        if self.pos+n < len(self.tokens):
-            return self.tokens[self.pos:self.pos+n]
+        if self.pos + n < len(self.tokens):
+            return self.tokens[self.pos:self.pos + n]
         raise Exception("Attempted to look past last token")
-
 
     def copy(self):
         return TokenList(self.tokens, self.pos)

@@ -26,3 +26,4 @@ def compile(path):
         print(errorHandler)
 
     type_check(result)
+    

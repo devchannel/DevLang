@@ -2,6 +2,7 @@ from .lexer import Lexer
 from .parsers import parse
 from .errorHandler import ErrorHandler
 from .type_checker import type_check
+from .codegen import codegen
 
 
 # Maybe we should change the implementation of Lexer and tokenParser
@@ -26,4 +27,4 @@ def compile(path):
         print(errorHandler)
 
     type_check(result)
-    
+    codegen(result)

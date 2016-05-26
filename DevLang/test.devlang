@@ -1,5 +1,5 @@
 |int32| main -> |float|x |string|y =>
-    |int| a = ""
+    |int| a = 4 - 3 * 3 
     If True =>
         a = 1
     End
@@ -10,9 +10,9 @@ End
 
 dong -> |int32| yo =>
     |int32| l = 44522.324
+    |int32| ss = 5.42+5+5.54324
     While True =>
         |int32| b = 3+3
-        ss = 5.42+5+5.54324
         If True =>
             a = 1
         End

@@ -29,7 +29,7 @@ def write_decl(type, expr, number):
     # so we just ignore it. We must change this.
     file.write("addi $sp, $sp, -4\n")  # Move sp to make room for 4 bytes
     save_expr(expr)  # We've loaded t0 with the value of the decl
-    file.write("sw $r" + str(number) + ", 0($sp)\n\n")
+    file.write("sw $r" + str(number) + ", 0($t0)\n\n")
 
 
 # Save the value of the expression into register $t0

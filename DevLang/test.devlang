@@ -9,8 +9,7 @@
 End
 
 dong -> |int32| yo =>
-    |int32| l = 44522.324
-    |int32| ss = 5.42+5+5.54324
+    |int| b = 12
     While True =>
         |int32| b = 3+3
         If True =>

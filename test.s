@@ -1,15 +1,27 @@
+.text
+
+.globl main
+main:
 # We've found a Declaration of type int with name a
 addi $sp, $sp, -4
+sw $t0,0($sp)
 li $t0, -5
-sw $r0, 0($sp)
 
-# We've found a Declaration of type int32 with name l
+# Pushing register t1 off of stack
+lw $t1, 0($sp)
+addi $sp, $sp, 4
+
+
+.globl dong
+dong:
+# We've found a Declaration of type int with name b
 addi $sp, $sp, -4
-li $t0, 44522.324
-sw $r0, 0($sp)
+sw $t0,0($sp)
+li $t0, 12
 
-# We've found a Declaration of type int32 with name ss
-addi $sp, $sp, -4
-li $t0, 15.963239999999999
-sw $r1, 0($sp)
+# Pushing register t1 off of stack
+lw $t1, 0($sp)
+addi $sp, $sp, 4
 
+li $v0, 10
+syscall

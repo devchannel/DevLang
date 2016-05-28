@@ -1,5 +1,5 @@
 |int32| main -> |float|x |string|y =>
-    |int| a = 4 - 3 * 3 
+    |int| a = (420+2) * 3
     If True =>
         a = 1
     End

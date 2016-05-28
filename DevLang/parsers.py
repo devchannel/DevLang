@@ -268,11 +268,10 @@ def process_func_call_aexpr(result_tuple):
 
 def parse_brackets_aexpr():
     return (
-          parse_constant_bexpr()
-        | parse_var_bexpr()
-        | parse_func_call_bexpr()
-        )
-            #* "Failed parsing boolean expression"
+          parse_open_bracket_sym()
+        + Lazy(parse_aexpr)
+        + parse_close_bracket_sym()
+        ) ^ process_brackets_aexpr
 
 
 def process_brackets_aexpr(result_tuple):

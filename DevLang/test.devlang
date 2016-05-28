@@ -9,7 +9,7 @@
 End
 
 dong -> |int32| yo =>
-    |int| b = 12
+    |float| b = 12.5
     While True =>
         |int32| b = 3+3
         If True =>

@@ -1,5 +1,5 @@
 |int32| main -> |float|x |string|y =>
-    |int| a = (420+2) * 3
+    |int| a = ((3+2) * 3) + 5
     If True =>
         a = 1
     End
@@ -9,7 +9,7 @@
 End
 
 dong -> |int32| yo =>
-    |float| b = 12.5
+    |float| b = (12.5 + 0.5) + 4 
     While True =>
         |int32| b = 3+3
         If True =>

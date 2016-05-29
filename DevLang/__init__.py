@@ -26,7 +26,7 @@ def compile(path):
     if errorHandler:
         print(errorHandler)
 
-    print(result)
+    #print(result)
 
     type_check(result)
     codegen(result)

@@ -23,6 +23,7 @@ def gen_function(function):
         if isinstance(item, DeclStmt):
             gen.comment("We've found a Declaration of type " +
                         item.type + " with name " + item.name)
+            print(type(item.expr))
             registers.append(write_decl(item.type, item.expr, len(registers)))
 
     while len(registers) > 0:
@@ -74,7 +75,7 @@ def fold(expr):
     if isinstance(expr, AFloat):
         return float(expr.val)
     if isinstance(expr, ABrackets):
-        fold(expr.a_expr)
+        return fold(expr.a_expr)
     left = fold(expr.left)
     right = fold(expr.right)
 

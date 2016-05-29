@@ -31,8 +31,10 @@ class Mips(object):
             register, register2, register3
         ))
 
-    def save_word(self, register, offset, register2):
-        self.write("sw ${}, {}(${})".format(register, offset, register2))
+    def save_word(self, register, offset, register2, isfloat=False):
+        self.write("sw{} ${}, {}(${})".format(
+            "c1" if isfloat else "",
+            register, offset, register2))
 
     def load_imm(self, register, value, isfloat=False):
         self.write("li{} ${}, {}".format(
@@ -40,8 +42,10 @@ class Mips(object):
             register, value
         ))
 
-    def load_word(self, register, offset, register2):
-        self.write("lw ${}, {}(${})".format(register, offset, register2))
+    def load_word(self, register, offset, register2, isfloat=False):
+        self.write("lw{} ${}, {}(${})".format(
+            "c1" if isfloat else "",
+            register, offset, register2))
 
     def syscall(self):
         self.write("syscall")

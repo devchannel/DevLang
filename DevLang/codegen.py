@@ -1,41 +1,38 @@
 from .grammar import *
+from .mips import Mips
 
-file = open("test.s", mode="w")
-
-# TODO: Clean up the code and make it OOP
+gen = Mips("test.s")
 
 
 def codegen(ast):
-    file.write(".text\n")
+    gen.write(".text\n")
     program = ast.value
     for function in program.functions:
         gen_function(function)
-    file.write("li $v0, 10\nsyscall\n")  # Signify the end of the program
+
+    # Signify the end of the program
+    gen.load_imm("v0", 10)
+    gen.syscall()
 
 
 def gen_function(function):
-    file.write("\n.globl " + function.name + "\n")
-    file.write(function.name + ":\n")  # Write the label
+    gen.function(function.name)
     i = 0
     for item in function.body:
         if isinstance(item, DeclStmt):
-            file.write("# We've found a Declaration of type " +
-                       item.type + " with name " + item.name + "\n")
+            gen.comment("We've found a Declaration of type " +
+                        item.type + " with name " + item.name)
             write_decl(item.type, item.expr, i)
             i += 1
     while(i > 0):
-        pop_reg("t" + str(i))
         i -= 1
+        pop_reg("t" + str(i))
 
 
 def pop_reg(reg):
-    file.write("# Pushing register " + reg + " off of stack\n")
-    file.write("lw $" + reg + ", 0($sp)\n")
-    file.write("addi $sp, $sp, 4\n\n")
-
-
-def load_immediate(register, value):
-    file.write("li $" + register + ", " + value + "\n")
+    gen.comment("Popping register " + reg + " off of stack")
+    gen.load_word(reg, 0, "sp")
+    gen.addi("sp", "sp", 4)
 
 
 # All declarations are within functions
@@ -43,19 +40,20 @@ def load_immediate(register, value):
 def write_decl(type, expr, number):
     # TODO: right now we assume all types are 4 bytes
     # so we just ignore it. We must change this.
-    file.write("addi $sp, $sp, -4\n")  # Move sp to make room for 4 bytes
-    file.write("sw $t" + str(number) + ",0($sp)\n")
+    gen.comment("Pushing register $t" + str(number) + " onto the stack")
+    gen.addi("sp", "sp", -4)  # Move sp to make room for 4 bytes
+    gen.save_word("t" + str(number), 0, "sp")
     save_expr(expr, "t" + str(number))  # Load reg with the value of the decl
-    file.write("\n")  # Pretty Printing
+    gen.write("")  # Pretty Printing
 
 
 # Save the value of the expression into register $t0
 def save_expr(expr, register):
     if isinstance(expr, AExpr):  # It's an expression
         if isinstance(expr, AInt):
-            load_immediate(register, expr.val)  # Just load it
+            gen.load_imm(register, expr.val)  # Just load it
         elif isinstance(expr, ABrackets) or isinstance(expr, ABinaryOp):
-            load_immediate(register, str(fold(expr)))  # Fold expression
+            gen.load_imm(register, str(fold(expr)))  # Fold expression
 
 
 # Recursively evaluates the expression given to it.

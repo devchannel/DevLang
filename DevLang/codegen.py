@@ -23,7 +23,7 @@ def gen_function(function):
         if isinstance(item, DeclStmt):
             gen.comment("We've found a Declaration of type " +
                         item.type + " with name " + item.name)
-            print(type(item.expr))
+            # print(type(item.expr))
             registers.append(write_decl(item.type, item.expr, len(registers)))
 
     while len(registers) > 0:
@@ -43,16 +43,17 @@ def write_decl(type, expr, number):
     # TODO: right now we assume all types are 4 bytes
     # so we just ignore it. We must change this.
     reg = "t" + str(number)
-    isfloat = isinstance(expr, AFloat)
-
-    gen.comment("Pushing register " + reg + " onto the stack")
-    gen.addi("sp", "sp", -4)  # Move sp to make room for 4 bytes
+    folded = fold(expr)
+    isfloat = isinstance(folded, float)
 
     if isfloat:
         reg = "f" + str(number)
 
+    gen.comment("Pushing register " + reg + " onto the stack")
+    gen.addi("sp", "sp", -4)  # Move sp to make room for 4 bytes
+
     gen.save_word(reg, 0, "sp", isfloat)
-    save_expr(expr, reg)  # Load reg with the value of the decl
+    save_expr(folded, reg)  # Load reg with the value of the decl
     gen.write("")  # Pretty Printing
     return (reg, isfloat)  # For less of a headache later
 
@@ -64,8 +65,10 @@ def save_expr(expr, register):
             gen.load_imm(register, expr.val)  # Just load it
         elif isinstance(expr, AFloat):
             gen.load_imm(register, expr.val, isfloat=True)
-        elif isinstance(expr, ABrackets) or isinstance(expr, ABinaryOp):
-            gen.load_imm(register, str(fold(expr)))  # Fold expression
+    elif isinstance(expr, float):
+        gen.load_imm(register, expr)
+    elif isinstance(expr, int):
+        gen.load_imm(register, expr)
 
 
 # Recursively evaluates the expression given to it.

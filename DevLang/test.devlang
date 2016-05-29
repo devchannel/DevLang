@@ -1,5 +1,5 @@
 |int32| main -> |float|x |string|y =>
-    |int| a = ((3+2) * 3) + 5
+    |int| a = (((3+2) * 3) + 5)
     If True =>
         a = 1
     End

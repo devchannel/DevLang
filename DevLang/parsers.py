@@ -103,6 +103,7 @@ def parse_stmt():
             | parse_for_stmt()# * "Failed parsing for statement"
             | parse_case_stmt()
             | parse_while_stmt()# * "Failed parsing while statement"
+            | parse_expr()
            ) * "Failed parsing statement"
 
 # Typed assignment. The var should not yet exist

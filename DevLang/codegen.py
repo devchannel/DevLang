@@ -2,32 +2,32 @@ from .grammar import *
 from .mips import Mips
 
 gen = Mips("test.s")
+symbol_table = {}
+loc_regs = []  # These will be modified and changed by each function
 
 
 def codegen(ast):
     gen.write(".text\n")
     program = ast.value
     for function in program.functions:
+        symbol_table[function.name] = {}  # Create the env for the function
+        symbol_table[function.name]['return'] = None  # The return of the func
         gen_function(function)
 
     # Signify the end of the program
     gen.load_imm("v0", 10)
     gen.syscall()
+    print(symbol_table)
 
 
 def gen_function(function):
     gen.function(function.name)
-    registers = []
 
     for item in function.body:
-        if isinstance(item, DeclStmt):
-            gen.comment("We've found a Declaration of type " +
-                        item.type + " with name " + item.name)
-            # print(type(item.expr))
-            registers.append(write_decl(item.type, item.expr, len(registers)))
+        gen_item(item, function.name)
 
-    while len(registers) > 0:
-        pop_reg(*registers.pop())
+    while len(loc_regs) > 0:
+        pop_reg(*loc_regs.pop())
         gen.write("")  # Pretty print
 
 
@@ -37,11 +37,31 @@ def pop_reg(reg, isfloat):
     gen.addi("sp", "sp", 4)
 
 
+def gen_item(item, function):
+    if isinstance(item, Statement):
+        gen_stmt(item, function)
+    elif isinstance(item, Expr):
+        # An expression is useless. So don't do any codegen
+        # All it does is affect return value
+        symbol_table[function]['return'] = fold(item)
+
+
+def gen_stmt(stmt, function):
+    if isinstance(stmt, DeclStmt):
+        symbol_table[function][stmt.name] = fold(stmt.expr)
+        # We update the return value every single time
+        symbol_table[function]['return'] = fold(stmt.expr)
+        gen.comment("We've found a Declaration of type " +
+                    stmt.type + " with name " + stmt.name)
+        # print(type(stmt.expr))
+        loc_regs.append(write_decl(stmt.type, stmt.expr, len(loc_regs)))
+
+
 # All declarations are within functions
 # so we need to do some messing with the stack.
 def write_decl(type, expr, number):
     # TODO: right now we assume all types are 4 bytes
-    # so we just ignore it. We must change this.
+    # so we just ignore type. We must change this.
     reg = "t" + str(number)
     folded = fold(expr)
     isfloat = isinstance(folded, float)

@@ -1,5 +1,6 @@
 |int32| main -> |float|x |string|y =>
     |int| a = (((3+2) * 3) + 5)
+    ((3 * 5) + (4 - 4.0)) * 3
     If True =>
         a = 1
     End

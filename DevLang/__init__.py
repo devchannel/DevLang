@@ -29,4 +29,6 @@ def compile(path):
     #print(result)
 
     type_check(result)
-    codegen(result)
+
+    gen_filename = path.split("/")[-1].split(".")[-2] + ".S"
+    codegen(result, gen_filename)

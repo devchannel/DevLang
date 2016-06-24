@@ -1,112 +1,58 @@
-from .grammar import *
-from .mips import Mips
+from llvmlite import ir
 
-gen = Mips("test.s")
+# The Symbol Table represents every function
+# It has all the variables and returns of each function
 symbol_table = {}
-loc_regs = []  # These will be modified and changed by each function
+module = None
 
 
-def codegen(ast):
-    gen.write(".text\n")
-    program = ast.value
-    for function in program.functions:
-        symbol_table[function.name] = {}  # Create the env for the function
-        symbol_table[function.name]['return'] = None  # The return of the func
-        gen_function(function)
-
-    # Signify the end of the program
-    gen.load_imm("v0", 10)
-    gen.syscall()
-    print(symbol_table)
+def codegen(ast, filename):
+    global module
+    module = ir.Module(filename)
+    for function in ast.value.functions:
+        symbol_table[function.name] = {'return': None}
+        codegen_function(function)
 
 
-def gen_function(function):
-    gen.function(function.name)
+def codegen_function(function):
+    try:
+        func_ret = box(function.type)
+    except Exception:
+        func_ret = infer_type(function)
 
-    for item in function.body:
-        gen_item(item, function.name)
+    func_args = function.params
 
-    while len(loc_regs) > 0:
-        pop_reg(*loc_regs.pop())
-        gen.write("")  # Pretty print
+    # Converts the function parameters to a tuple of LLVM types
+    # Sort of functional black magic
+    func_args = tuple(map(lambda x: box(x.type_name), func_args.params))
 
+    func_type = ir.FunctionType(func_ret, func_args)
 
-def pop_reg(reg, isfloat):
-    gen.comment("Popping register " + reg + " off of stack")
-    gen.load_word(reg, 0, "sp", isfloat)
-    gen.addi("sp", "sp", 4)
-
-
-def gen_item(item, function):
-    if isinstance(item, Statement):
-        gen_stmt(item, function)
-    elif isinstance(item, Expr):
-        # An expression is useless. So don't do any codegen
-        # All it does is affect return value
-        symbol_table[function]['return'] = fold(item)
+    # All of the above was just a setup for this, which only names the func
+    func = ir.Function(module, func_type, name=function.name)
+    print(module)
 
 
-def gen_stmt(stmt, function):
-    if isinstance(stmt, DeclStmt):
-        symbol_table[function][stmt.name] = fold(stmt.expr)
-        # We update the return value every single time
-        symbol_table[function]['return'] = fold(stmt.expr)
-        gen.comment("We've found a Declaration of type " +
-                    stmt.type + " with name " + stmt.name)
-        # print(type(stmt.expr))
-        loc_regs.append(write_decl(stmt.type, stmt.expr, len(loc_regs)))
+def infer_type(function):
+    # TODO: Actually implement this
+    return ir.IntType(32)
 
 
-# All declarations are within functions
-# so we need to do some messing with the stack.
-def write_decl(type, expr, number):
-    # TODO: right now we assume all types are 4 bytes
-    # so we just ignore type. We must change this.
-    reg = "t" + str(number)
-    folded = fold(expr)
-    isfloat = isinstance(folded, float)
-
-    if isfloat:
-        reg = "f" + str(number)
-
-    gen.comment("Pushing register " + reg + " onto the stack")
-    gen.addi("sp", "sp", -4)  # Move sp to make room for 4 bytes
-
-    gen.save_word(reg, 0, "sp", isfloat)
-    save_expr(folded, reg)  # Load reg with the value of the decl
-    gen.write("")  # Pretty Printing
-    return (reg, isfloat)  # For less of a headache later
+# TODO: The type checker should do this
+def box(dev_type):
+    if dev_type == "int32":
+        return ir.IntType(32)
+    if dev_type == "int64":
+        return ir.IntType(64)
+    if dev_type == "char":
+        return ir.IntType(8)  # We have an 8 bit character set
+    if dev_type == "string":
+        # We need to specify the size if we use an array
+        # So instead we use a pointer to a char
+        return ir.PointerType(ir.IntType(8))  # Hooray for pointers!
+    if dev_type == "bool":
+        return ir.IntType(1)
+    if dev_type == "float":
+        return ir.DoubleType()
 
 
-# Save the value of the expression into register $t0
-def save_expr(expr, register):
-    if isinstance(expr, AExpr):  # It's an expression
-        if isinstance(expr, AInt):
-            gen.load_imm(register, expr.val)  # Just load it
-        elif isinstance(expr, AFloat):
-            gen.load_imm(register, expr.val, isfloat=True)
-    elif isinstance(expr, float):
-        gen.load_imm(register, expr)
-    elif isinstance(expr, int):
-        gen.load_imm(register, expr)
-
-
-# Recursively evaluates the expression given to it.
-def fold(expr):
-    if isinstance(expr, AInt):
-        return int(expr.val)
-    if isinstance(expr, AFloat):
-        return float(expr.val)
-    if isinstance(expr, ABrackets):
-        return fold(expr.a_expr)
-    left = fold(expr.left)
-    right = fold(expr.right)
-
-    if expr.op == "+":
-        return left + right
-    elif expr.op == "-":
-        return left - right
-    elif expr.op == "*":
-        return left * right
-    elif expr.op == "/":
-        return left / right

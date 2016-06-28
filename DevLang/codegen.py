@@ -15,9 +15,9 @@ def codegen(ast, filename):
 
 
 def codegen_function(function):
-    try:
+    try:  # It's typed
         func_ret = box(function.type)
-    except Exception:
+    except AttributeError:  # It's untyped
         func_ret = infer_type(function)
 
     func_args = function.params
@@ -30,7 +30,14 @@ def codegen_function(function):
 
     # All of the above was just a setup for this, which only names the func
     func = ir.Function(module, func_type, name=function.name)
-    print(module)
+
+    # Now we go through and generate code for everything else
+
+    codegen_body(function.body, func)
+
+
+def codegen_body(body, function):
+    for statement in body:
 
 
 def infer_type(function):

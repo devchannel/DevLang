@@ -1,7 +1,7 @@
 from .lexer import Lexer
 from .parsers import parse
 from .errorHandler import ErrorHandler
-from .type_checker import type_check
+from .analyzer import Analyzer
 from .codegen import codegen
 
 
@@ -28,7 +28,9 @@ def compile(path):
 
     #print(result)
 
-    type_check(result)
+    analysis = Analyzer(result)
+    analysis.analyze()
+    sym_table = analysis.symbol_table
 
     gen_filename = path.split("/")[-1].split(".")[-2] + ".S"
-    codegen(result, gen_filename)
+    codegen(result, gen_filename, sym_table)

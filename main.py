@@ -2,4 +2,4 @@
 
 import DevLang as Dev
 
-Dev.compile("test.devlang")
+Dev.compile("program.dvl")

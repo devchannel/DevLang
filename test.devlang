@@ -1,6 +1,6 @@
-|int64| main -> |float|x |string|y =>
+main -> |float|x |string|y =>
     |int| a = (((3+2) * 3) + 5)
-    ((3 * 5) + (4 - 4.0)) * 3
+    ((3 * 5) + (4 - 4)) * 3
     If True =>
         a = 1
     End
@@ -9,12 +9,12 @@
     End
 End
 
-|int32| dong -> |int32| yo =>
+dong -> |int32| yo =>
     |float| b = (12.5 + 0.5) + 4 
     While True =>
         |int32| b = 3+3
         If True =>
-            a = 1
+            |float| b = (12.5 + 0.5) + 4 
         End
     End
 End

@@ -38,7 +38,7 @@ def codegen_function(function):
 
 def codegen_body(body, function):
     for statement in body:
-
+        pass
 
 def infer_type(function):
     # TODO: Actually implement this

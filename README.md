@@ -56,3 +56,11 @@ DevLang is a pure functional programming language written in Python created by t
         |int|x = 7
 
 - **Looping.** While a given for any imperative programming language, that does not have to be the case for a functional programming language. We allow for both *for* and *while* loops.
+
+
+## Contributing
+First off, a warning. This code has been said to cause PTSD and major headaches. Make sure to have some water and painkillers nearby while reading. 
+
+Currently, we target only LLVM, being able to target other languages would be nice. We hope to target C in the future, and any help upon that would be appreciated.
+
+The code is also written by us amateur compiler developers, and it's pretty bad. Help on improving it, removing redundant code, making it readable, and anything like that would also be appreciated. Just submit an issue, and ask to work on it. 

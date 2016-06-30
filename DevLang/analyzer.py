@@ -4,11 +4,16 @@ from llvmlite import ir
 types = {
     'int32': ir.IntType(32),
     'int64': ir.IntType(64),
+    'int': ir.IntType(64),
     'float': ir.DoubleType(),
     'char': ir.IntType(8),
     'string': ir.PointerType(ir.IntType(8)),
     'bool': ir.IntType(1)
 }
+
+# TODO: Right now we assume all statements are AExprs
+# We rely heavily upon deduce_aexpr
+# Let's change this to a deduce_expr which checks for all types
 
 
 class Analyzer:
@@ -47,12 +52,39 @@ class Analyzer:
             self.analyze_function(function)
 
     def analyze_function(self, func):
+        ref = self.symbol_table[func.name]
         try:  # It's typed
-            self.symbol_table[func.name]['ret_type'] = self.pybox(statement.expr)
-        except AttributeError:  # It's untyped
-            self.symbol_table[func.name]['ret_type'] = deduce_type(func)
-        ret_value = self.symbol_table[func.name]['ret_type']
+            ref['ret_type'] = self.pybox(func.type)
+            if ref[func.name]['ret_type'] != self.deduce_type(func):
+                # We deduced something different
+                raise Exception("Expected and actual returns are different")
 
+        except AttributeError:  # It's untyped
+            ref['ret_type'] = self.deduce_type(func)
+        ret_value = ref['ret_type']
+
+        # Next up, we need to iterate through the function
+        # If we find returns or vars with incorrect types, we error
+        for statement in func.body:
+            self.analyze_statement(statement, ref)
+
+    def analyze_statement(self, statement, func_sym):
+        try:
+            for item in statement.body:
+                self.analyze_statement(item)
+        except AttributeError:
+            # It's not a block statement
+            var_type, expr, name = (None, None, None)
+            if isinstance(statement, (DeclStmt, AssignStmt)):
+                expr = statement.expr
+                name = statement.name
+                if isinstance(statement, DeclStmt):
+                    var_type = self.box(statement.type)
+                    if var_type != self.deduce_aexpr(expr):
+                        raise Exception("Incorrect Type Declaration")
+                func_sym['vars'][name] = var_type  # Fill in type of the var
+
+    # Returns type, and does basic checks on returns
     def deduce_type(self, f, returns=None):
         if returns is None:
             returns = [f]
@@ -111,7 +143,7 @@ class Analyzer:
     def deduce_aexpr(self, expr):
         # TODO: Function calls and variables expressions
         if isinstance(expr, AInt):
-            return types['int64']
+            return types['int']
         elif isinstance(expr, AFloat):
             return types['float']
         elif isinstance(expr, ABinaryOp):
@@ -119,7 +151,7 @@ class Analyzer:
                 return types['float']
             elif isinstance(self.deduce_aexpr(expr.right), ir.DoubleType):
                 return types['float']
-            return types['int64']
+            return types['int']
         elif isinstance(expr, ABrackets):
             return self.deduce_aexpr(expr.a_expr)
 
@@ -135,7 +167,7 @@ class Analyzer:
             pass  # We might need to do something for bools later
         dev_type = type(dev_var)
         if dev_type == int:
-            return types['int64']
+            return types['int']
         if dev_type == str and len(dev_var) == 1:
             return types['char']
         if dev_type == str:
